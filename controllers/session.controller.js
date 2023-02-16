@@ -3,7 +3,6 @@ const db = require('../models/index.model')
 const Session = db.Session
 
 
-
 exports.createSession = async(req, res) => {
     const {
         title,
@@ -11,8 +10,8 @@ exports.createSession = async(req, res) => {
         module_id,
     } = req.body
 
-    const uploads = path.join(__dirname, '../uploads')
-
+    const uploads = req.file.path
+    
     try {
         const sessionCreated = await Session.create({
             title: title,

@@ -1,12 +1,12 @@
 const multer =require('multer')
 
-exports.upload = multer({
-    dest: 'uploads',
-    
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(mp4|avi|mov|mwv|mkv)$/)) {
-            return cb(new Error('Please upload a Video'))
-        }
-        cb(undefined, true)
-    }
-})
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, `./uploads/`);
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + file.originalname);
+    },
+  });
+  
+  exports.upload = multer({ storage: storage });
