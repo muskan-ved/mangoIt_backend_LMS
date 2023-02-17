@@ -2,7 +2,7 @@ const db = require('../models/index.model')
 const jsonwebtoken = require('jsonwebtoken')
 const Course = db.Course
 const Module = db.Module
-// const Session = db.Session
+const Session = db.Session
 
 exports.createCourse = async (req, res) => {
     const {
@@ -44,14 +44,18 @@ exports.deleteCourse = async (req, res) => {
         if (findCourse) {
             const isDeleted = await Course.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: courseId } })
             const courseDeleted = await Course.findOne({ where: { id: courseId } })
-            const moduleDelete = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: courseId } })
+
+            const moduleDelete = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { course_id: courseId } })
             const findModuleDeleted = await Module.findOne({ where: { id: courseId } })
+
             const moduleDeletedId = findModuleDeleted.id
-            const sessionDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: moduleDeletedId } })
-            res.send(sessionDeleted)
+            const sessionDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { module_id: moduleDeletedId } })
+            const findSesssionDeleted = await Session.findOne({where:{id: moduleDeletedId}})
+
             res.status(200).json({
                 courseDeleted: courseDeleted,
-                moduleDelete : findModuleDeleted})
+                moduleDelete: findModuleDeleted,
+                sessionDeleted: findSesssionDeleted})
         }
 
         if (!findCourse) {
