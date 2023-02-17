@@ -24,8 +24,14 @@ module.exports = (sequelize, DataTypes) => {
             },
             uploads : {
                 type : DataTypes.STRING,
-            } 
-
+            },
+            isDeleted: {
+                type : DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            deletedBy :{
+                type: DataTypes.INTEGER,
+            }
         },
         {
             sequelize,

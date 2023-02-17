@@ -4,7 +4,7 @@ const { webProtection } = require('../helper/auth')
 const router = express.Router()
 
 router.post('/registration', webProtection, registration)
-router.post('/loginuser', loginUser)
+router.post('/loginuser', webProtection ,loginUser)
 router.put('/updateuser/:id', webProtection , updateUser)
 
 module.exports = router

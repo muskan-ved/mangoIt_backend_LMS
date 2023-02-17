@@ -21,6 +21,13 @@ module.exports = (sequelize, DataTypes) => {
             },
             course_id: {
                 type: DataTypes.INTEGER,
+            },
+            isDeleted : {
+                type : DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            deletedBy : {
+                type : DataTypes.INTEGER,
             }
         },
         {

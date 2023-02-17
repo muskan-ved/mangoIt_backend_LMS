@@ -75,24 +75,33 @@ exports.updateUser = async (req, res) => {
     }
     if (findUser) {
 
-        const body = {
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            email: req.body.email,
-            role_id: req.body.role_id,
-            password: await hashPassword(req.body.password)
-        }
+        const {
+            first_name,
+            last_name,
+            email
+        } = req.body
 
+        // password: await hashPassword(req.body.password)
+
+        const firstName = await User.findOne({ where: { first_name: first_name } })
+        const lastName = await User.findOne({ where: { last_name: last_name } })
         const findEmail = await User.findOne({ where: { email: req.body.email } })
 
-        if (findEmail) {
-            res.status(400).json('This email exist with another user!')
+        if (!firstName || !lastName) {
+            const updateName = await User.update({ first_name: first_name, last_name: last_name }, { where: { id: userId } })
+            res.status(201).json(req.body)
         }
 
-        if (!findEmail) {
-            const updateUser = await User.update(body, { where: { id: userId } })
-            res.status(200).json(body)
+       
+        if ((firstName && lastName) || !findEmail) {
+            const updateUser = await User.update({ email: email }, { where: { id: userId } })
+            res.status(201).json(req.body)
         }
+
+        // if ((firstName && lastName) || findEmail) {
+        //     res.status(400).json('This email exist with another user!')
+        // }
+
     }
 
 }

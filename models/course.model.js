@@ -28,6 +28,13 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            isDeleted: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            deletedBy: {
+                type: DataTypes.INTEGER,
+            },
             user_id: {
                 type: DataTypes.INTEGER,
             },
