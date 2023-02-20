@@ -10,6 +10,11 @@ exports.createSession = async (req, res) => {
         module_id,
     } = req.body
 
+
+    const token = req.headers.authorization.split(" ")[1]
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
     const uploads = req.file.path
 
     try {
@@ -17,7 +22,8 @@ exports.createSession = async (req, res) => {
             title: title,
             description: description,
             module_id: module_id,
-            uploads: uploads
+            user_id: user_id,
+            uploads: uploads,
         })
         res.status(201).send(sessionCreated)
     }

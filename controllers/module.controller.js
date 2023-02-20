@@ -10,11 +10,16 @@ exports.createModule = async (req, res) => {
         course_id,
     } = req.body
 
+    const token = req.headers.authorization.split(" ")[1]
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
     try {
         moduleCreated = await Module.create({
             title: title,
             description: description,
-            course_id: course_id
+            course_id: course_id,
+            user_id: user_id,
         })
         res.status(201).json(moduleCreated)
     }
