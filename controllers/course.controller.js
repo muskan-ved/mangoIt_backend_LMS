@@ -38,6 +38,7 @@ exports.deleteCourse = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1]
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const deletedBy = decode.id
+    console.log(deletedBy)
 
     try {
         findCourse = await Course.findOne({ where: { id: courseId } })
@@ -46,11 +47,12 @@ exports.deleteCourse = async (req, res) => {
             const courseDeleted = await Course.findOne({ where: { id: courseId } })
 
             const moduleDelete = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { course_id: courseId } })
-            const findModuleDeleted = await Module.findOne({ where: { id: courseId } })
+            const findModuleDeleted = await Module.findOne({ where: { course_id: courseId } })
 
             const moduleDeletedId = findModuleDeleted.id
+            // console.log(moduleDeletedId)
             const sessionDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { module_id: moduleDeletedId } })
-            const findSesssionDeleted = await Session.findOne({where:{id: moduleDeletedId}})
+            const findSesssionDeleted = await Session.findOne({where:{module_id: moduleDeletedId}})
 
             res.status(200).json({
                 courseDeleted: courseDeleted,
