@@ -10,7 +10,7 @@ exports.createModule = async (req, res) => {
         course_id,
     } = req.body
 
-    const token = req.headers.authorization.split(" ")[1]
+    const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const user_id = decode.id
 
@@ -34,7 +34,7 @@ exports.deleteModule = async (req, res) => {
     const moduleId = req.params.id
 
 
-    const token = req.headers.authorization.split(" ")[1]
+    const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const deletedBy = decode.id
 
@@ -54,4 +54,34 @@ exports.deleteModule = async (req, res) => {
         res.status(400).send(e)
     }
 
+}
+
+exports.updateModule = async (req, res) => {
+    const {
+        title,
+        description,
+        course_id,
+    } = req.body
+
+    const moduleId = req.params.id
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
+    try {
+        moduleUpdate = await Module.update({
+            title: title,
+            description: description,
+            course_id: course_id,
+            user_id: user_id,
+        },{ where: { id: moduleId } })
+
+        const updatedModule = await Module.findOne({ where: { id: moduleId } })
+        res.status(201).json(updatedModule)
+    }
+
+    catch (e) {
+        res.status(400).send(e)
+    }
 }

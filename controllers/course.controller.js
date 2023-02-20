@@ -1,5 +1,6 @@
 const db = require('../models/index.model')
 const jsonwebtoken = require('jsonwebtoken')
+const { where } = require('sequelize')
 const Course = db.Course
 const Module = db.Module
 const Session = db.Session
@@ -11,7 +12,8 @@ exports.createCourse = async (req, res) => {
         isVisible,
         isChargeable } = req.body
 
-    const token = req.headers.authorization.split(" ")[1]
+        const token = req.headers.logintoken
+      
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const user_id = decode.id
 
@@ -35,7 +37,7 @@ exports.createCourse = async (req, res) => {
 exports.deleteCourse = async (req, res) => {
     const courseId = req.params.id
 
-    const token = req.headers.authorization.split(" ")[1]
+    const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const deletedBy = decode.id
     console.log(deletedBy)
@@ -52,12 +54,13 @@ exports.deleteCourse = async (req, res) => {
             const moduleDeletedId = findModuleDeleted.id
             // console.log(moduleDeletedId)
             const sessionDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { module_id: moduleDeletedId } })
-            const findSesssionDeleted = await Session.findOne({where:{module_id: moduleDeletedId}})
+            const findSesssionDeleted = await Session.findOne({ where: { module_id: moduleDeletedId } })
 
             res.status(200).json({
                 courseDeleted: courseDeleted,
                 moduleDelete: findModuleDeleted,
-                sessionDeleted: findSesssionDeleted})
+                sessionDeleted: findSesssionDeleted
+            })
         }
 
         if (!findCourse) {
@@ -68,4 +71,34 @@ exports.deleteCourse = async (req, res) => {
         res.status(400).send(e)
     }
 
+}
+
+exports.updateCourse = async (req, res) => {
+    const {
+        title,
+        description,
+        isVisible,
+        isChargeable } = req.body
+
+    const courseId = req.params.id
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
+    try {
+        courseUpdate = await Course.update({
+            title: title,
+            description: description,
+            isVisible: isVisible,
+            isChargeable: isChargeable,
+            user_id: user_id,
+        }, { where: { id: courseId } })
+
+        const updatedCourse = await Course.findOne({ where: { id: courseId } })
+        res.status(201).json(updatedCourse)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
 }

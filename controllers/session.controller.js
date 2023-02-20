@@ -11,7 +11,7 @@ exports.createSession = async (req, res) => {
     } = req.body
 
 
-    const token = req.headers.authorization.split(" ")[1]
+    const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const user_id = decode.id
 
@@ -36,7 +36,7 @@ exports.createSession = async (req, res) => {
 exports.deleteSession = async (req, res) => {
     const sessionId = req.params.id
 
-    const token = req.headers.authorization.split(" ")[1]
+    const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const deletedBy = decode.id
     try {
@@ -55,4 +55,37 @@ exports.deleteSession = async (req, res) => {
         res.status(400).json(e)
     }
 
+}
+
+exports.updateSession = async (req, res) => {
+    const {
+        title,
+        description,
+        module_id,
+    } = req.body
+
+    const sessionId = req.params.id
+   
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
+    const uploads = req.file.path
+ 
+
+    try {
+        const sessionUpdate = await Session.update({
+            title: title,
+            description: description,
+            module_id: module_id,
+            user_id: user_id,
+            uploads: uploads,
+        },{ where: { id: sessionId } })
+
+        const updatedSession = await Session.findOne({ where: { id: sessionId } })
+        res.status(201).send(updatedSession)
+    }
+    catch (e) {
+        res.status(400).send(e)
+    }
 }
