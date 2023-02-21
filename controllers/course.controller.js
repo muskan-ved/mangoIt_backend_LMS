@@ -12,8 +12,8 @@ exports.createCourse = async (req, res) => {
         isVisible,
         isChargeable } = req.body
 
-        const token = req.headers.logintoken
-      
+    const token = req.headers.logintoken
+
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const user_id = decode.id
 
@@ -34,13 +34,45 @@ exports.createCourse = async (req, res) => {
 
 }
 
+
+exports.updateCourse = async (req, res) => {
+    const {
+        title,
+        description,
+        isVisible,
+        isChargeable } = req.body
+
+    const courseId = req.params.id
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const user_id = decode.id
+
+    try {
+        courseUpdate = await Course.update({
+            title: title,
+            description: description,
+            isVisible: isVisible,
+            isChargeable: isChargeable,
+            user_id: user_id,
+        }, { where: { id: courseId } })
+
+        const updatedCourse = await Course.findOne({ where: { id: courseId } })
+        res.status(201).json(updatedCourse)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+}
+
+
 exports.deleteCourse = async (req, res) => {
     const courseId = req.params.id
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const deletedBy = decode.id
-    console.log(deletedBy)
+    
 
     try {
         findCourse = await Course.findOne({ where: { id: courseId } })
@@ -73,32 +105,3 @@ exports.deleteCourse = async (req, res) => {
 
 }
 
-exports.updateCourse = async (req, res) => {
-    const {
-        title,
-        description,
-        isVisible,
-        isChargeable } = req.body
-
-    const courseId = req.params.id
-
-    const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const user_id = decode.id
-
-    try {
-        courseUpdate = await Course.update({
-            title: title,
-            description: description,
-            isVisible: isVisible,
-            isChargeable: isChargeable,
-            user_id: user_id,
-        }, { where: { id: courseId } })
-
-        const updatedCourse = await Course.findOne({ where: { id: courseId } })
-        res.status(201).json(updatedCourse)
-
-    } catch (e) {
-        res.status(400).send(e)
-    }
-}

@@ -33,30 +33,6 @@ exports.createSession = async (req, res) => {
 
 }
 
-exports.deleteSession = async (req, res) => {
-    const sessionId = req.params.id
-
-    const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const deletedBy = decode.id
-    try {
-        const findSession = await Session.findOne({ where: { id: sessionId } })
-        if (findSession) {
-            const isDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: sessionId } })
-            const sessionDeleted = await Session.findOne({ where: { id: sessionId } })
-            res.status(201).send(sessionDeleted)
-        }
-
-        if (!findSession) {
-            res.status(404).json('No session awailable!')
-        }
-    }
-    catch (e) {
-        res.status(400).json(e)
-    }
-
-}
-
 exports.updateSession = async (req, res) => {
     const {
         title,
@@ -89,3 +65,30 @@ exports.updateSession = async (req, res) => {
         res.status(400).send(e)
     }
 }
+
+
+exports.deleteSession = async (req, res) => {
+    const sessionId = req.params.id
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const deletedBy = decode.id
+    try {
+        const findSession = await Session.findOne({ where: { id: sessionId } })
+        if (findSession) {
+            const isDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: sessionId } })
+            const sessionDeleted = await Session.findOne({ where: { id: sessionId } })
+            res.status(201).send(sessionDeleted)
+        }
+
+        if (!findSession) {
+            res.status(404).json('No session awailable!')
+        }
+    }
+    catch (e) {
+        res.status(400).json(e)
+    }
+
+}
+
+

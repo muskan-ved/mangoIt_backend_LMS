@@ -30,32 +30,6 @@ exports.createModule = async (req, res) => {
 
 }
 
-exports.deleteModule = async (req, res) => {
-    const moduleId = req.params.id
-
-
-    const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const deletedBy = decode.id
-
-    try {
-        findModule = await Module.findOne({ where: { id: moduleId } })
-        if (findModule) {
-            const isDeleted = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: moduleId } })
-            const moduleDeleted = await Module.findOne({ where: { id: moduleId } })
-            res.status(201).send(moduleDeleted)
-        }
-
-        if(!findModule){
-            res.status(404).json('No module awailable!')
-        }
-    }
-    catch (e) {
-        res.status(400).send(e)
-    }
-
-}
-
 exports.updateModule = async (req, res) => {
     const {
         title,
@@ -85,3 +59,31 @@ exports.updateModule = async (req, res) => {
         res.status(400).send(e)
     }
 }
+
+
+exports.deleteModule = async (req, res) => {
+    const moduleId = req.params.id
+
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const deletedBy = decode.id
+
+    try {
+        findModule = await Module.findOne({ where: { id: moduleId } })
+        if (findModule) {
+            const isDeleted = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: moduleId } })
+            const moduleDeleted = await Module.findOne({ where: { id: moduleId } })
+            res.status(201).send(moduleDeleted)
+        }
+
+        if(!findModule){
+            res.status(404).json('No module awailable!')
+        }
+    }
+    catch (e) {
+        res.status(400).send(e)
+    }
+
+}
+
