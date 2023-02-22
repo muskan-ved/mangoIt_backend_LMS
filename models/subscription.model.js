@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
             },
             price: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.FLOAT,
             },
             duration_term: {
                 type: DataTypes.STRING,
