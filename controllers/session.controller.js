@@ -23,6 +23,7 @@ exports.createSession = async (req, res) => {
             description: description,
             module_id: module_id,
             user_id: user_id,
+            created_by: user_id,
             uploads: uploads,
         })
         res.status(201).send(sessionCreated)
@@ -56,6 +57,7 @@ exports.updateSession = async (req, res) => {
             module_id: module_id,
             user_id: user_id,
             uploads: uploads,
+            updated_by: user_id,
         },{ where: { id: sessionId } })
 
         const updatedSession = await Session.findOne({ where: { id: sessionId } })
@@ -72,11 +74,11 @@ exports.deleteSession = async (req, res) => {
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const deletedBy = decode.id
+    const deleted_by = decode.id
     try {
         const findSession = await Session.findOne({ where: { id: sessionId } })
         if (findSession) {
-            const isDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: sessionId } })
+            const isDeleted = await Session.update({ is_deleted: true, deleted_by: deleted_by }, { where: { id: sessionId } })
             const sessionDeleted = await Session.findOne({ where: { id: sessionId } })
             res.status(201).send(sessionDeleted)
         }

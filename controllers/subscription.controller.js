@@ -13,7 +13,7 @@ exports.createSubcsription = async (req, res) => {
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const user_id = decode.id
+    const created_by = decode.id
 
 
     try {
@@ -23,7 +23,7 @@ exports.createSubcsription = async (req, res) => {
             price: price,
             duration_term: duration_term,
             duration_value: duration_value,
-            created_by: user_id,
+            created_by: created_by,
         })
         res.status(201).json(createSubscription)
 
@@ -46,7 +46,7 @@ exports.updateSubscription = async (req, res) => {
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const user_id = decode.id
+    const updated_by = decode.id
 
     const updateSubscription = await Subscription.update({
         name: name,
@@ -54,7 +54,7 @@ exports.updateSubscription = async (req, res) => {
         price: price,
         duration_term: duration_term,
         duration_value: duration_value,
-        updated_by: user_id,
+        updated_by: updated_by,
     }, { where: { id: subscriptionId } })
 
     const updatedSubscriptionValue = await Subscription.findOne({ where: { id: subscriptionId } })

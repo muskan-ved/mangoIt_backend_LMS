@@ -1,6 +1,5 @@
 const db = require('../models/index.model')
 const jsonwebtoken = require('jsonwebtoken')
-const { where } = require('sequelize')
 const Course = db.Course
 const Module = db.Module
 const Session = db.Session
@@ -24,6 +23,7 @@ exports.createCourse = async (req, res) => {
             isVisible: isVisible,
             isChargeable: isChargeable,
             user_id: user_id,
+            created_by:user_id,
         })
 
         res.status(201).json(courseCreated)
@@ -71,21 +71,21 @@ exports.deleteCourse = async (req, res) => {
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const deletedBy = decode.id
+    const deleted_by = decode.id
     
 
     try {
         findCourse = await Course.findOne({ where: { id: courseId } })
         if (findCourse) {
-            const isDeleted = await Course.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: courseId } })
+            const isDeleted = await Course.update({ is_deleted: true, deleted_by: deleted_by }, { where: { id: courseId } })
             const courseDeleted = await Course.findOne({ where: { id: courseId } })
 
-            const moduleDelete = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { course_id: courseId } })
+            const moduleDelete = await Module.update({ is_deleted: true, deleted_by: deleted_by }, { where: { course_id: courseId } })
             const findModuleDeleted = await Module.findOne({ where: { course_id: courseId } })
 
             const moduleDeletedId = findModuleDeleted.id
             // console.log(moduleDeletedId)
-            const sessionDeleted = await Session.update({ isDeleted: true, deletedBy: deletedBy }, { where: { module_id: moduleDeletedId } })
+            const sessionDeleted = await Session.update({ is_deleted: true, deleted_by: deleted_by }, { where: { module_id: moduleDeletedId } })
             const findSesssionDeleted = await Session.findOne({ where: { module_id: moduleDeletedId } })
 
             res.status(200).json({

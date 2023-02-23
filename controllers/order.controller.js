@@ -32,6 +32,7 @@ exports.createOrder = async (req, res) => {
                 status: status,
                 parent_order_id: parent_order_id,
                 order_type: order_type,
+                created_by: login_user
             })
             res.json(orderCreate)
         }

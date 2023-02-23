@@ -33,7 +33,10 @@ module.exports = (sequelize, DataTypes) => {
             },
             deleted_by: {
                 type: DataTypes.INTEGER,
-            }
+            },
+            view_history: {
+                type: DataTypes.JSON,
+              },
 
         },
         {
@@ -43,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     )
 
     // sequelize.sync({ alter: true }).then(() => {
-    //     console.log('enrollcourse table created successfully!');
+    //     console.log('user table alter successfully!');
     // }).catch((error) => {
     //     console.error('Unable to create table : ', error);
     // })

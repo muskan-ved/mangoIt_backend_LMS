@@ -28,11 +28,17 @@ module.exports = (sequelize, DataTypes) => {
             uploads : {
                 type : DataTypes.STRING,
             },
-            isDeleted: {
+            created_by: {
+                type: DataTypes.INTEGER,
+            },
+            updated_by: {
+                type: DataTypes.INTEGER,
+            },
+            is_deleted: {
                 type : DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            deletedBy :{
+            deleted_by :{
                 type: DataTypes.INTEGER,
             }
         },
@@ -42,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     )
 
-    //    sequelize.sync( { force: true } ).then(() => {
+    //    sequelize.sync( { alter: true } ).then(() => {
     //     console.log('session table created successfully!');
     //   }).catch((error) => {
     //     console.error('Unable to create table : ', error);

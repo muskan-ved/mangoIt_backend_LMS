@@ -13,6 +13,7 @@ exports.createModule = async (req, res) => {
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const user_id = decode.id
+    
 
     try {
         moduleCreated = await Module.create({
@@ -20,6 +21,7 @@ exports.createModule = async (req, res) => {
             description: description,
             course_id: course_id,
             user_id: user_id,
+            created_by: user_id,
         })
         res.status(201).json(moduleCreated)
     }
@@ -49,6 +51,7 @@ exports.updateModule = async (req, res) => {
             description: description,
             course_id: course_id,
             user_id: user_id,
+            updated_by:user_id
         },{ where: { id: moduleId } })
 
         const updatedModule = await Module.findOne({ where: { id: moduleId } })
@@ -67,12 +70,12 @@ exports.deleteModule = async (req, res) => {
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
-    const deletedBy = decode.id
+    const deleted_by = decode.id
 
     try {
         findModule = await Module.findOne({ where: { id: moduleId } })
         if (findModule) {
-            const isDeleted = await Module.update({ isDeleted: true, deletedBy: deletedBy }, { where: { id: moduleId } })
+            const isDeleted = await Module.update({ is_deleted: true, deleted_by: deleted_by }, { where: { id: moduleId } })
             const moduleDeleted = await Module.findOne({ where: { id: moduleId } })
             res.status(201).send(moduleDeleted)
         }

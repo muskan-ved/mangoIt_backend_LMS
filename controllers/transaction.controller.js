@@ -23,6 +23,7 @@ exports.createTransaction = async (req, res) => {
                 order_id: order_id,
                 user_id: login_user,
                 payment_method: payment_method,
+                created_by: login_user,
                 transaction_id: transaction_id,
             })
             res.status(201).json(transactionCreate)

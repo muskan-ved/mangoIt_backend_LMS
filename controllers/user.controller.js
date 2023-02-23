@@ -1,4 +1,5 @@
 const { generateToken, hashPassword, isValidPassword } = require('../helper/auth')
+const jsonwebtoken = require('jsonwebtoken')
 const db = require('../models/index.model')
 const User = db.User
 
@@ -11,25 +12,64 @@ exports.registration = async (req, res) => {
         role_id,
     } = req.body
 
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const login_user = decode.id
 
-    if (!email || !password) {
-        res.status(400).json('Email and Password Required!')
+    try {
+
+        const findLoginUser = await User.findOne({ where: { id: login_user } })
+
+        if (!(findLoginUser.role_id == 1)) {  // learner reg self
+            if (!email || !password) {
+                res.status(400).json('Email and Password Required!')
+            }
+
+            const findUser = await User.findOne({ where: { email: email } })
+            if (findUser) {
+                res.status(400).json('Email already Registered!')
+            }
+
+            if (!findUser) {
+                const user = await User.create({
+                    first_name: first_name,
+                    last_name: last_name,
+                    email: email,
+                    password: await hashPassword(password),
+                    role_id: role_id,
+                })
+                res.status(201).json(user)
+            }
+
+        }
+
+
+        if ((findLoginUser.role_id == 1)) {  // admin reg for leraner 
+            if (!email || !password) {
+                res.status(400).json('Email and Password Required!')
+            }
+
+            const findUser = await User.findOne({ where: { email: email } })
+            if (findUser) {
+                res.status(400).json('Email already Registered!')
+            }
+
+            if (!findUser) {
+                const user = await User.create({
+                    first_name: first_name,
+                    last_name: last_name,
+                    email: email,
+                    password: await hashPassword(password),
+                    role_id: role_id,
+                    created_by: login_user,
+                })
+                res.status(201).json(user)
+            }
+
+        }
     }
-
-    const findUser = await User.findOne({ where: { email: email } })
-    if (findUser) {
-        res.status(400).json('Email already Registered!')
-    }
-
-    if (!findUser) {
-        const user = await User.create({
-            first_name: first_name,
-            last_name: last_name,
-            email: email,
-            password: await hashPassword(password),
-            role_id: role_id,
-        })
-        res.status(201).json(user)
+    catch (e) {
+        res.status(400).json(e)
     }
 
 
@@ -82,20 +122,25 @@ exports.updateUser = async (req, res) => {
         } = req.body
 
         // password: await hashPassword(req.body.password)
+        const token = req.headers.logintoken
+        const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+        const updated_by = decode.id
 
         const firstName = await User.findOne({ where: { first_name: first_name } })
         const lastName = await User.findOne({ where: { last_name: last_name } })
         const findEmail = await User.findOne({ where: { email: req.body.email } })
 
         if (!firstName || !lastName) {
-            const updateName = await User.update({ first_name: first_name, last_name: last_name }, { where: { id: userId } })
-            res.status(201).json(req.body)
+            const updateName = await User.update({ first_name: first_name, last_name: last_name, updated_by: updated_by }, { where: { id: userId } })
+            const updatedUser = await User.findOne({ where: { id: userId } })
+            res.status(201).json(updatedUser)
         }
 
-       
+
         if ((firstName && lastName) || !findEmail) {
-            const updateUser = await User.update({ email: email }, { where: { id: userId } })
-            res.status(201).json(req.body)
+            const updateUser = await User.update({ email: email, updated_by: updated_by }, { where: { id: userId } })
+            const updatedUser = await User.findOne({ where: { id: userId } })
+            res.status(201).json(updatedUser)
         }
 
         // if ((firstName && lastName) || findEmail) {
@@ -104,4 +149,25 @@ exports.updateUser = async (req, res) => {
 
     }
 
+}
+
+exports.deleteUser = async (req, res) => {
+    const userId = req.params.id
+
+    const token = req.headers.logintoken
+    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const deleted_by = decode.id
+    try {
+        const userDelete = await User.update({
+            is_deleted: true,
+            deleted_by: deleted_by
+        },
+            { where: { id: userId } })
+
+        const deletedUser = await User.findOne({ where: { id: userId } })
+        res.status(201).json(deletedUser)
+    }
+    catch (e) {
+        res.status(400).json(e)
+    }
 }

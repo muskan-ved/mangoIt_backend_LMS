@@ -25,21 +25,27 @@ module.exports = (sequelize, DataTypes) => {
             user_id: {
                 type: DataTypes.INTEGER,
             },
-            isDeleted : {
+            created_by: {
+                type: DataTypes.INTEGER,
+            },
+            updated_by: {
+                type: DataTypes.INTEGER,
+            },
+            is_deleted : {
                 type : DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            deletedBy : {
+            deleted_by : {
                 type : DataTypes.INTEGER,
             }
         },
         {
             sequelize,
-            modelName: 'modules'
+            modelName: 'module'
         }
     )
 
-    //  sequelize.sync( { force: true } ).then(() => {
+    //  sequelize.sync( { alter: true } ).then(() => {
     //     console.log('module table created successfully!');
     //   }).catch((error) => {
     //     console.error('Unable to create table : ', error);

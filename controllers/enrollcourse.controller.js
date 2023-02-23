@@ -9,32 +9,39 @@ exports.createEnrollCourse = async (req, res) => {
         user_id,
         course_id,
         course_type,
-        created_by,
+        view_history
     } = req.body
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, 'this_is_seceret')
     const login_user = decode.id
 
+    // if(view_history == 0){
+        
+    // }
+
     try {
 
         findLoginUser = await User.findOne({ where: { id: login_user } })
 
-        if (!(findLoginUser.role_id == 1)) {
+        if (!(findLoginUser.role_id == 1)) {  //learner user
             const enrollCourse = await Enrollcourse.create({
                 user_id: login_user,
                 course_id: course_id,
-                course_type: course_type
+                course_type: course_type,
+                created_by: login_user,
+                view_history:view_history
             })
             res.status(201).json(enrollCourse)
         }
 
-        if (findLoginUser.role_id == 1) {
+        if (findLoginUser.role_id == 1) {   // admin user
             const enrollCourse = await Enrollcourse.create({
                 user_id: user_id,
                 course_id: course_id,
                 course_type: course_type,
-                created_by: login_user
+                created_by: login_user,
+                view_history:view_history
             })
             res.status(201).json(enrollCourse)
         }
@@ -51,6 +58,7 @@ exports.updateEnrollCourse = async (req, res) => {
         user_id,
         course_id,
         course_type,
+        view_history
     } = req.body
 
     const token = req.headers.logintoken
@@ -61,6 +69,7 @@ exports.updateEnrollCourse = async (req, res) => {
         user_id: user_id,
         course_id: course_id,
         course_type: course_type,
+        view_history:view_history,
         updated_by: updated_by
     }, { where: { id: enrollCourseId } })
 
