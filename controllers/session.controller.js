@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 
 const Session = db.Session
@@ -12,7 +13,7 @@ exports.createSession = async (req, res) => {
 
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
     const uploads = req.file.path
@@ -44,7 +45,7 @@ exports.updateSession = async (req, res) => {
     const sessionId = req.params.id
    
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
     const uploads = req.file.path
@@ -73,7 +74,7 @@ exports.deleteSession = async (req, res) => {
     const sessionId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
     try {
         const findSession = await Session.findOne({ where: { id: sessionId } })

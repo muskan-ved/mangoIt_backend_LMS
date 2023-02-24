@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 const Subscription = db.Subscription
 
@@ -12,7 +13,7 @@ exports.createSubcsription = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const created_by = decode.id
 
 
@@ -45,7 +46,7 @@ exports.updateSubscription = async (req, res) => {
     const subscriptionId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const updated_by = decode.id
 
     const updateSubscription = await Subscription.update({
@@ -65,7 +66,7 @@ exports.deleteSubscription = async (req, res) => {
     const subscriptionId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deletedBy = decode.id
 
     try {

@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 const Enrollcourse = db.Enrollcourse
 const User = db.User
@@ -13,7 +14,7 @@ exports.createEnrollCourse = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const login_user = decode.id
 
     // if(view_history == 0){
@@ -62,7 +63,7 @@ exports.updateEnrollCourse = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const updated_by = decode.id
 
     const enrollCourseUpdate = await Enrollcourse.update({
@@ -82,7 +83,7 @@ exports.deleteEnrollCourse = async (req, res) => {
     const enrollCourseId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
 
     try {

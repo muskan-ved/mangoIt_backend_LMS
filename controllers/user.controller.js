@@ -1,4 +1,5 @@
 const { generateToken, hashPassword, isValidPassword } = require('../helper/auth')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 const db = require('../models/index.model')
 const User = db.User
@@ -13,9 +14,9 @@ exports.registration = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const login_user = decode.id
-
+    // console.log(login_user)
     try {
 
         const findLoginUser = await User.findOne({ where: { id: login_user } })
@@ -123,7 +124,7 @@ exports.updateUser = async (req, res) => {
 
         // password: await hashPassword(req.body.password)
         const token = req.headers.logintoken
-        const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+        const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
         const updated_by = decode.id
 
         const firstName = await User.findOne({ where: { first_name: first_name } })
@@ -155,7 +156,7 @@ exports.deleteUser = async (req, res) => {
     const userId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
     try {
         const userDelete = await User.update({

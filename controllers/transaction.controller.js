@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 const Transaction = db.Transaction
 const User = db.User
@@ -12,7 +13,7 @@ exports.createTransaction = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const login_user = decode.id
 
     try {
@@ -56,7 +57,7 @@ exports.updateTransaction = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const updated_by = decode.id
 
     const transactionUpdate = Transaction.update(
@@ -80,7 +81,7 @@ exports.deleteTransaction = async (req, res) => {
     const transactionId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
 
     try {

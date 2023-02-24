@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 
 const Module = db.Module
@@ -11,7 +12,7 @@ exports.createModule = async (req, res) => {
     } = req.body
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
     
 
@@ -42,7 +43,7 @@ exports.updateModule = async (req, res) => {
     const moduleId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
     try {
@@ -69,7 +70,7 @@ exports.deleteModule = async (req, res) => {
 
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
 
     try {

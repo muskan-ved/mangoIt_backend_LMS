@@ -1,4 +1,5 @@
 const db = require('../models/index.model')
+require('dotenv').config
 const jsonwebtoken = require('jsonwebtoken')
 const Course = db.Course
 const Module = db.Module
@@ -13,8 +14,9 @@ exports.createCourse = async (req, res) => {
 
     const token = req.headers.logintoken
 
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
+    console.log(user_id)
 
     try {
         courseCreated = await Course.create({
@@ -45,7 +47,7 @@ exports.updateCourse = async (req, res) => {
     const courseId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
     try {
@@ -70,7 +72,7 @@ exports.deleteCourse = async (req, res) => {
     const courseId = req.params.id
 
     const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
     
 
