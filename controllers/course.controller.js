@@ -16,7 +16,6 @@ exports.createCourse = async (req, res) => {
 
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
-    console.log(user_id)
 
     try {
         courseCreated = await Course.create({
@@ -57,6 +56,7 @@ exports.updateCourse = async (req, res) => {
             isVisible: isVisible,
             isChargeable: isChargeable,
             user_id: user_id,
+            updated_by: user_id,
         }, { where: { id: courseId } })
 
         const updatedCourse = await Course.findOne({ where: { id: courseId } })

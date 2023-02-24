@@ -10,7 +10,8 @@ exports.createEnrollCourse = async (req, res) => {
         user_id,
         course_id,
         course_type,
-        view_history
+        view_history,
+        mark_compelete,
     } = req.body
 
     const token = req.headers.logintoken
@@ -31,7 +32,8 @@ exports.createEnrollCourse = async (req, res) => {
                 course_id: course_id,
                 course_type: course_type,
                 created_by: login_user,
-                view_history:view_history
+                view_history: view_history,
+                mark_compelete: mark_compelete,
             })
             res.status(201).json(enrollCourse)
         }
@@ -42,7 +44,8 @@ exports.createEnrollCourse = async (req, res) => {
                 course_id: course_id,
                 course_type: course_type,
                 created_by: login_user,
-                view_history:view_history
+                view_history: view_history,
+                mark_compelete: mark_compelete,
             })
             res.status(201).json(enrollCourse)
         }
@@ -59,7 +62,8 @@ exports.updateEnrollCourse = async (req, res) => {
         user_id,
         course_id,
         course_type,
-        view_history
+        view_history,
+        mark_compelete: mark_compelete,
     } = req.body
 
     const token = req.headers.logintoken
@@ -71,7 +75,8 @@ exports.updateEnrollCourse = async (req, res) => {
         course_id: course_id,
         course_type: course_type,
         view_history:view_history,
-        updated_by: updated_by
+        updated_by: updated_by,
+        mark_compelete: mark_compelete,
     }, { where: { id: enrollCourseId } })
 
     const newUpdatedEnrollCourse = await Enrollcourse.findOne({ where: { id: enrollCourseId } })

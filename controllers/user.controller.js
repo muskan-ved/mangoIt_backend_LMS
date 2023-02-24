@@ -13,16 +13,13 @@ exports.registration = async (req, res) => {
         role_id,
     } = req.body
 
-    const token = req.headers.logintoken
-    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
-    const login_user = decode.id
-    // console.log(login_user)
+
     try {
+        
+        const checkToken = req.headers.logintoken
+        if (!checkToken) {
 
-        const findLoginUser = await User.findOne({ where: { id: login_user } })
-
-        if (!(findLoginUser.role_id == 1)) {  // learner reg self
-            if (!email || !password) {
+            if (!email || !password) {      // learner reg self
                 res.status(400).json('Email and Password Required!')
             }
 
@@ -41,9 +38,14 @@ exports.registration = async (req, res) => {
                 })
                 res.status(201).json(user)
             }
-
         }
 
+
+        const token = req.headers.logintoken
+        const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
+        const login_user = decode.id
+        // console.log(login_user)
+        const findLoginUser = await User.findOne({ where: { id: login_user } })
 
         if ((findLoginUser.role_id == 1)) {  // admin reg for leraner 
             if (!email || !password) {
@@ -144,9 +146,6 @@ exports.updateUser = async (req, res) => {
             res.status(201).json(updatedUser)
         }
 
-        // if ((firstName && lastName) || findEmail) {
-        //     res.status(400).json('This email exist with another user!')
-        // }
 
     }
 

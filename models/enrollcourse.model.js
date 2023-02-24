@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
             view_history: {
                 type: DataTypes.JSON,
               },
+            mark_compelete: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
 
         },
         {
