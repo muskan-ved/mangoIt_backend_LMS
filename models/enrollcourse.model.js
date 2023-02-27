@@ -1,32 +1,25 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-    class Session extends Model {
-        static associate(model) { }
+    class Enrollcourse extends Model {
+        static assocaite(model) { }
     }
-
-    Session.init(
+    Enrollcourse.init(
         {
             id: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
-                unique: true,
-            },
-            title: {
-                type: DataTypes.STRING,
-            },
-            description: {
-                type: DataTypes.STRING,
-            },
-            module_id: {
-                type: DataTypes.INTEGER,
+                allowNull:false,
             },
             user_id: {
                 type: DataTypes.INTEGER,
             },
-            uploads : {
-                type : DataTypes.STRING,
+            course_id: {
+                type: DataTypes.INTEGER,
+            },
+            course_type: {
+                type: DataTypes.STRING,
             },
             created_by: {
                 type: DataTypes.INTEGER,
@@ -35,26 +28,32 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
             },
             is_deleted: {
-                type : DataTypes.BOOLEAN,
+                type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            deleted_by :{
+            deleted_by: {
                 type: DataTypes.INTEGER,
-            }
+            },
+            view_history: {
+                type: DataTypes.JSON,
+              },
+            mark_compelete: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+
         },
         {
             sequelize,
-            modelName: "session"
+            modelName: 'enroll-course'
         }
     )
 
-    //    sequelize.sync( { alter: true } ).then(() => {
-    //     console.log('session table created successfully!');
-    //   }).catch((error) => {
+    // sequelize.sync({ alter: true }).then(() => {
+    //     console.log('user table alter successfully!');
+    // }).catch((error) => {
     //     console.error('Unable to create table : ', error);
-    //   })
+    // })
 
-
-    return Session
-
+    return Enrollcourse
 }

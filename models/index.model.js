@@ -14,5 +14,9 @@ db.User = require("./user.model")(sequelize, Sequelize);
 db.Course = require('./course.model')(sequelize, Sequelize)
 db.Module = require('./module.model')(sequelize, Sequelize)
 db.Session = require('./session.model')(sequelize, Sequelize)
+db.Subscription = require('./subscription.model')(sequelize, Sequelize)
+db.Order = require('./order.model')(sequelize,Sequelize)
+db.Transaction = require('./tranaction.model')(sequelize,Sequelize)
+db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
 
 module.exports = db

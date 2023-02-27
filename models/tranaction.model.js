@@ -1,11 +1,11 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-    class Module extends Model {
-        static associate(model) { }
+    class Transaction extends Model {
+        static assocaite(model) { }
     }
 
-    Module.init(
+    Transaction.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -13,17 +13,17 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 unique: true,
             },
-            title: {
-                type: DataTypes.STRING,
-            },
-            description: {
-                type: DataTypes.STRING,
-            },
-            course_id: {
+            order_id: {
                 type: DataTypes.INTEGER,
             },
             user_id: {
                 type: DataTypes.INTEGER,
+            },
+            payment_method: {
+                type: DataTypes.STRING,
+            },
+            transaction_id: {
+                type: DataTypes.STRING,
             },
             created_by: {
                 type: DataTypes.INTEGER,
@@ -31,25 +31,26 @@ module.exports = (sequelize, DataTypes) => {
             updated_by: {
                 type: DataTypes.INTEGER,
             },
-            is_deleted : {
-                type : DataTypes.BOOLEAN,
+            is_deleted: {
+                type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            deleted_by : {
-                type : DataTypes.INTEGER,
+            deleted_by: {
+                type: DataTypes.INTEGER,
             }
+
         },
         {
             sequelize,
-            modelName: 'module'
+            modelName: 'transaction-record'
         }
     )
 
-    //  sequelize.sync( { alter: true } ).then(() => {
-    //     console.log('module table created successfully!');
-    //   }).catch((error) => {
+    // sequelize.sync({ alter: true }).then(() => {
+    //     console.log('course table created successfully!');
+    // }).catch((error) => {
     //     console.error('Unable to create table : ', error);
-    //   })
+    // })
 
-      return Module
+    return Transaction
 }

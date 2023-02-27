@@ -32,6 +32,20 @@ module.exports = (sequelize, DataTypes) => {
             },
             role_id : {
                 type: DataTypes.INTEGER,
+                defaultValue:2,
+            },
+            created_by: {
+                type: DataTypes.INTEGER,
+            },
+            updated_by: {
+                type: DataTypes.INTEGER,
+            },
+            is_deleted: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            deleted_by: {
+                type: DataTypes.INTEGER,
             },
 
         },

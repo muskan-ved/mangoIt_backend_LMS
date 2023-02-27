@@ -28,6 +28,19 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            created_by: {
+                type: DataTypes.INTEGER,
+            },
+            updated_by: {
+                type: DataTypes.INTEGER,
+            },
+            is_deleted: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            deleted_by: {
+                type: DataTypes.INTEGER,
+            },
             user_id: {
                 type: DataTypes.INTEGER,
             },
@@ -38,8 +51,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     )
 
-    //  sequelize.sync( { force: true } ).then(() => {
-    //     console.log('course table created successfully!');
+    //  sequelize.sync( {  alter: true } ).then(() => {
+    //     console.log('course table alter successfully!');
     //   }).catch((error) => {
     //     console.error('Unable to create table : ', error);
     //   })
