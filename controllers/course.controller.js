@@ -81,7 +81,7 @@ exports.deleteCourse = async (req, res) => {
         if (findCourse) {
             const isDeleted = await Course.update({ is_deleted: true, deleted_by: deleted_by }, { where: { id: courseId } })
             const courseDeleted = await Course.findOne({ where: { id: courseId } })
-
+            
             const moduleDelete = await Module.update({ is_deleted: true, deleted_by: deleted_by }, { where: { course_id: courseId } })
             const findModuleDeleted = await Module.findOne({ where: { course_id: courseId } })
 
