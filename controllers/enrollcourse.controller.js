@@ -18,10 +18,6 @@ exports.createEnrollCourse = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const login_user = decode.id
 
-    // if(view_history == 0){
-        
-    // }
-
     try {
 
         findLoginUser = await User.findOne({ where: { id: login_user } })

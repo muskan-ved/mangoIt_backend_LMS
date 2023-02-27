@@ -11,7 +11,6 @@ exports.createSession = async (req, res) => {
         module_id,
     } = req.body
 
-
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
@@ -50,7 +49,6 @@ exports.updateSession = async (req, res) => {
 
     const uploads = req.file.path
  
-
     try {
         const sessionUpdate = await Session.update({
             title: title,
