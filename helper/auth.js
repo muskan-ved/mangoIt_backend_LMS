@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 require('dotenv').config()
 
 exports.generateToken = async (payload) => {
-    const jwt = jsonwebtoken.sign(payload, process.env.SIGNING_KEY, { expiresIn: '24h' })
+    const jwt = jsonwebtoken.sign(payload, process.env.SIGNING_KEY, { expiresIn: '48h' })
     return jwt;
 }
 
