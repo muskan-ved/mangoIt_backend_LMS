@@ -1,8 +1,10 @@
 const { generateToken, hashPassword, isValidPassword } = require('../helper/auth')
 require('dotenv').config()
+
 const jsonwebtoken = require('jsonwebtoken')
 const db = require('../models/index.model')
 const User = db.User
+
 
 exports.registration = async (req, res) => {
     const {
@@ -15,7 +17,7 @@ exports.registration = async (req, res) => {
 
 
     try {
-        
+
         const checkToken = req.headers.logintoken
         if (!checkToken) {
 
@@ -170,4 +172,31 @@ exports.deleteUser = async (req, res) => {
     catch (e) {
         res.status(400).json(e)
     }
+}
+
+exports.sendGmail = async (req, res) => {
+    const { to, cc, subject } = req.body
+
+    const send = require('gmail-send')({
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
+        to,
+        cc,
+        subject,
+        replyTo: 'devendramangoit@gmail.com',
+    })
+
+    const filepath = req.file.path
+
+    try {
+        const { result, full } = await send({
+            html: '<b> demo text from mail </b>',     // both for text and html
+            files: [filepath]
+        })
+
+        res.status(200).json(full);
+    } catch (error) {
+        res.json(error);
+    }
+
 }
