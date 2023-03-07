@@ -174,6 +174,42 @@ exports.deleteUser = async (req, res) => {
     }
 }
 
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email } = req.body
+        const findUser = await User.findOne({ where: { email, is_deleted: false } })
+
+        if (!findUser) {
+            res.status(400).json('this email is not register with us!')
+            return
+        }
+
+        if (findUser) {
+            const { password, confirm_password } = req.body
+
+            if (!password || !confirm_password) {
+                res.status(201).json("password & confirm_password fields are required!")
+                return
+            }
+
+            if (password !== confirm_password) {
+                res.status(201).json("Password and confirm password are not matched!");
+                return;
+            }
+
+            findUser.password = await hashPassword(confirm_password);
+            findUser.save();
+
+            res.status(200).json("password change succesfully!");
+        }
+    }
+    catch (e) {
+        res.status(400).json(e)
+    }
+}
+
+
 exports.sendGmail = async (req, res) => {
     const { to, cc, subject } = req.body
 

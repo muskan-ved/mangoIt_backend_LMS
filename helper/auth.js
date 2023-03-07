@@ -27,7 +27,7 @@ exports.webProtection = async (req, res, next) => {
     try{
         if (req.headers.authorization) {
             const token = req.headers.authorization.split(" ")[1]
-            const decode = jsonwebtoken.verify(token, 'this_is_seceret')
+            const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
             next()
         }
           else {
