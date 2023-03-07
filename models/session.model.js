@@ -25,7 +25,10 @@ module.exports = (sequelize, DataTypes) => {
             user_id: {
                 type: DataTypes.INTEGER,
             },
-            uploads : {
+            type: {
+                type: DataTypes.STRING,
+            },
+            audio_video : {
                 type : DataTypes.STRING,
             },
             created_by: {

@@ -4,10 +4,11 @@ const { webProtection } = require('../helper/auth')
 
 const router = express.Router()
 
-router.post('/createpayment', webProtection, createPayment)
-router.get('/getstripecustomer/:id', webProtection, getStripeCustomer)
-// router.post('/updatestripecustomer/:id',webProtection, updateStripeCustomer)
-router.delete('/deletestripecustomer/:id',webProtection, deleteStripeCustomer)
+router.post('/payment', webProtection, createPayment)
+router.get('/payment/:id', webProtection, getStripeCustomer)
+router.put('/payment/:id',webProtection, updateStripeCustomer)
+router.delete('/payment/:id',webProtection, deleteStripeCustomer)
+
 router.post('/cardtoken',webProtection, cardToken)
 
 module.exports = router

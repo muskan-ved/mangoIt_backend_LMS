@@ -18,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
                 // allowNull: false,
             },
             description: {
-                type: DataTypes.STRING
+                type: DataTypes.STRING,
+            },
+            trailer_url: {
+                type: DataTypes.STRING,
             },
             isVisible: {
                 type: DataTypes.BOOLEAN,

@@ -17,10 +17,13 @@ exports.createCourse = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
+    const trailer_url = req.file.path
+
     try {
         courseCreated = await Course.create({
             title: title,
             description: description,
+            trailer_url,
             isVisible: isVisible,
             isChargeable: isChargeable,
             user_id: user_id,
@@ -49,10 +52,13 @@ exports.updateCourse = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
+    const trailer_url = req.file.path
+
     try {
         courseUpdate = await Course.update({
             title: title,
             description: description,
+            trailer_url,
             isVisible: isVisible,
             isChargeable: isChargeable,
             user_id: user_id,

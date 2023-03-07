@@ -8,6 +8,7 @@ exports.createSession = async (req, res) => {
     const {
         title,
         description,
+        type,
         module_id,
     } = req.body
 
@@ -15,16 +16,17 @@ exports.createSession = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
-    const uploads = req.file.path
+    const audio_video = req.file.path
 
     try {
         const sessionCreated = await Session.create({
-            title: title,
-            description: description,
-            module_id: module_id,
+            title,
+            description,
+            module_id,
             user_id: user_id,
+            type,
             created_by: user_id,
-            uploads: uploads,
+            audio_video,
         })
         res.status(201).send(sessionCreated)
     }
@@ -38,6 +40,7 @@ exports.updateSession = async (req, res) => {
     const {
         title,
         description,
+        type,
         module_id,
     } = req.body
 
@@ -47,15 +50,16 @@ exports.updateSession = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
-    const uploads = req.file.path
+    const audio_video = req.file.path
  
     try {
         const sessionUpdate = await Session.update({
-            title: title,
-            description: description,
-            module_id: module_id,
+            title,
+            description,
+            module_id,
             user_id: user_id,
-            uploads: uploads,
+            type,
+            audio_video,
             updated_by: user_id,
         },{ where: { id: sessionId } })
 

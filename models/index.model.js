@@ -18,5 +18,7 @@ db.Subscription = require('./subscription.model')(sequelize, Sequelize)
 db.Order = require('./order.model')(sequelize,Sequelize)
 db.Transaction = require('./tranaction.model')(sequelize,Sequelize)
 db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
+db.Payment = require('./payment.model')(sequelize,Sequelize)
+db.Token = require('./token.model')(sequelize,Sequelize)
 
 module.exports = db

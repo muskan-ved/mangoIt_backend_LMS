@@ -1,3 +1,7 @@
+const db = require('../models/index.model')
+const Payment = db.Payment
+const Token = db.Token
+const User = db.User
 require('dotenv').config()
 const { v4: uuidv4 } = require('uuid');
 const stripe = require('stripe')(process.env.STRIPE_SECRETE_KEY);
@@ -9,11 +13,17 @@ exports.createPayment = async (req, res) => {
   const token = req.headers.logintoken
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
   const email = decode.email
+  const user_id = decode.id
   const {
     name,
     description,
     amount,
     currency,
+    number,
+    exp_month,
+    exp_year,
+    cvc,
+    key,
   } = req.body
 
   const idempotencyKey = uuidv4()
@@ -26,18 +36,23 @@ exports.createPayment = async (req, res) => {
     // res.json(createCustomer)
 
     // generate card token ---------------------------------
+
+
     if (createCustomer) {
       const cardTokenGen = await stripe.tokens.create({
         card: {
-          number: '4242424242424242',
-          exp_month: 3,
-          exp_year: 2024,
-          cvc: '314',
+          number,
+          exp_month,
+          exp_year,
+          cvc,
         }
       })
-      // res.json(cardTokenGen)
+      // console.log(cardTokenGen.card.exp_year)
 
       if (cardTokenGen) {
+
+        // res.json(tokenData)
+
         // create source to save card detail to stripe
         const card = await stripe.customers.createSource(createCustomer.id, { source: cardTokenGen.id })
 
@@ -49,6 +64,24 @@ exports.createPayment = async (req, res) => {
               currency: currency,
               customer: createCustomer.id,
             }, { idempotencyKey })
+
+            if (customerPayment) {
+              const createPayment = await Payment.create({
+                user_id: user_id,
+                token: cardTokenGen.id
+              })
+              // console.log(createPayment.id)
+
+              if (createPayment) {
+                const tokenData = await Token.create({
+                  token_id: createPayment.id,
+                  key,
+                  value: cardTokenGen.card.exp_year
+                })
+              }
+
+            }
+
 
             res.json(customerPayment)
           }
@@ -81,32 +114,33 @@ exports.getStripeCustomer = async (req, res) => {
 }
 
 
-// exports.updateStripeCustomer = async (req, res) => {
-//   const stripeCustomerId = req.params.id
-//   try {
-//     const {
-//       name,
-//       description,
-//       amount,
-//       currency,
-//     } = req.body
+exports.updateStripeCustomer = async (req, res) => {
 
-  
-//     const updateStripeCustomer = await stripe.customers.update(
-//       stripeCustomerId,
-      
-//        { name: name,
-//         description: description,
-//         amount:amount,
-//         currency
-//        } 
-//     )
-//     res.status(200).json(updateStripeCustomer)
-//   }
-//   catch (e) {
-//     res.status(500).json(e)
-//   }
-// }
+  const token = req.headers.logintoken
+  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
+  const email = decode.email
+  const {
+    name,
+    description,
+  } = req.body
+
+  try {
+
+    const stripeCustomerId = req.params.id
+    const customer = await stripe.customers.update(
+      stripeCustomerId,
+      {
+        name,
+        description,
+      }
+    )
+    res.json(customer)
+
+  }
+  catch (e) {
+    res.status(500).json(e)
+  }
+}
 
 
 
@@ -122,25 +156,16 @@ exports.deleteStripeCustomer = async (req, res) => {
 }
 
 exports.cardToken = async (req, res) => {
-
-  try {
-    const cardTokenGen = await stripe.tokens.create({
-      card: {
-        number: '4242424242424242',
-        exp_month: 3,
-        exp_year: 2024,
-        cvc: '314',
-      }
-    })
-
-    res.status(200).json(cardTokenGen)
-  }
-  catch (e) {
-    res.status(500).json(e)
-  }
-
+  const cardTokenGen = await stripe.tokens.create({
+    card: {
+      number: '4242424242424242',
+      exp_month: 3,
+      exp_year: 2024,
+      cvc: '314',
+    }
+  })
+  res.status(200).json(cardTokenGen)
 }
-
 
 
 // SecreteKey_sourabh = 'sk_test_51LkLlPLVp3cdDpUh7AUoQIdolBC7QY9JVlF5okcCNIER6wfF7dy5D1sk3sCW4Pqz50hPL6vlJP7YpOfYoJjKeJGQ00Kwtav4kX'
