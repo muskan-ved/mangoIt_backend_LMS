@@ -181,27 +181,25 @@ exports.resetPassword = async (req, res) => {
         const findUser = await User.findOne({ where: { email, is_deleted: false } })
 
         if (!findUser) {
-            res.status(400).json('this email is not register with us!')
-            return
+            return res.status(400).json('this email is not register with us!')   
         }
 
         if (findUser) {
             const { password, confirm_password } = req.body
 
             if (!password || !confirm_password) {
-                res.status(201).json("password & confirm_password fields are required!")
-                return
+                return res.status(400).json("password & confirm_password fields are required!")
+                
             }
 
             if (password !== confirm_password) {
-                res.status(201).json("Password and confirm password are not matched!");
-                return;
+                return res.status(400).json("Password and confirm password are not matched!");
             }
 
             findUser.password = await hashPassword(confirm_password);
             findUser.save();
 
-            res.status(200).json("password change succesfully!");
+            res.status(202).json("password change succesfully!");
         }
     }
     catch (e) {
