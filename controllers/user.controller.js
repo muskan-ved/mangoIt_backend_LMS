@@ -25,7 +25,7 @@ exports.registration = async (req, res) => {
                 res.status(400).json('Email and Password Required!')
             }
 
-            const findUser = await User.findOne({ where: { email: email } })
+            const findUser = await User.findOne({ where: { email: email, is_deleted: false  } })
             if (findUser) {
                 res.status(400).json('Email already Registered!')
             }
@@ -47,14 +47,14 @@ exports.registration = async (req, res) => {
         const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
         const login_user = decode.id
         // console.log(login_user)
-        const findLoginUser = await User.findOne({ where: { id: login_user } })
+        const findLoginUser = await User.findOne({ where: { id: login_user, is_deleted:false } })
 
         if ((findLoginUser.role_id == 1)) {  // admin reg for leraner 
             if (!email || !password) {
                 res.status(400).json('Email and Password Required!')
             }
 
-            const findUser = await User.findOne({ where: { email: email } })
+            const findUser = await User.findOne({ where: { email: email, is_deleted: false  } })
             if (findUser) {
                 res.status(400).json('Email already Registered!')
             }
@@ -87,7 +87,7 @@ exports.loginUser = async (req, res) => {
         res.status(400).json('Email and Password Required!')
     }
 
-    const user = await User.findOne({ where: { email: req.body.email } })
+    const user = await User.findOne({ where: { email: req.body.email, is_deleted: false  } })
     if (!user) {
         res.status(404).json('User not exist with this Email!')
     }
@@ -114,7 +114,7 @@ exports.loginUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const userId = req.params.id
 
-    const findUser = await User.findOne({ where: { id: userId } })
+    const findUser = await User.findOne({ where: { id: userId, is_deleted:false } })
     if (!findUser) {
         res.status(404).json('User not Found!')
     }

@@ -5,6 +5,7 @@ const sequelize = new Sequelize (process.env.DATABASE, "root", process.env.PASSW
     dialect: process.env.DIALECT,
 })
 
+
 const db = {}
 
 db.Sequelize = Sequelize
