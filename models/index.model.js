@@ -22,4 +22,5 @@ db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
 db.Payment = require('./payment.model')(sequelize,Sequelize)
 db.Token = require('./token.model')(sequelize,Sequelize)
 
+//export deb
 module.exports = db
