@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
             last_name : {
                 type: DataTypes.STRING,
             },
+            profile_pic: {
+                type: DataTypes.STRING,
+            },
             email : {
                 type: DataTypes.STRING,
                 allowNull: false,
@@ -53,7 +56,7 @@ module.exports = (sequelize, DataTypes) => {
             sequelize,
             modelName: "users"
         })
-    // sequelize.sync( { force: true } ).then(() => {
+    // sequelize.sync( { alter: true  } ).then(() => {
     //     console.log('User table created successfully!');
     //   }).catch((error) => {
     //     console.error('Unable to create table : ', error);

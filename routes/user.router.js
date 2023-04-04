@@ -4,7 +4,7 @@ const { updateUser, registration, loginUser,deleteUser, resetPassword ,sendGmail
 const { webProtection } = require('../helper/auth')
 const router = express.Router()
 
-router.post('/registration', webProtection, registration)
+router.post('/registration', webProtection, upload.single("profile_pic") ,registration)
 router.post('/loginuser', webProtection ,loginUser)
 router.put('/updateuser/:id', webProtection , updateUser)
 router.delete('/deleteuser/:id',webProtection, deleteUser)
