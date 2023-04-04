@@ -9,9 +9,55 @@ const jsonwebtoken = require("jsonwebtoken");
 const db = require("../models/index.model");
 const User = db.User;
 
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.status(200).json(users);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const getUserById = await User.findOne({
+      where: { id: userId, is_deleted: false },
+    });
+
+    if(getUserById) {
+        res.status(200).json(getUserById)
+    }
+    if (!getUserById) {
+      res.status(404).json("User not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getUsersBySearch = async(req, res) => {
+    const givenLetters = req.body.letters;
+
+    try {
+        const usersBySearch = await User.findAll({
+          where: { first_name: givenLetters, is_deleted: false },
+        });
+    
+        if(usersBySearch) {
+            res.status(200).json(usersBySearch)
+        }
+        if (!usersBySearch) {
+          res.status(404).json("User not Found!");
+        }
+      } catch (e) {
+        res.status(400).json(e);
+      }
+
+}
+
 exports.registration = async (req, res) => {
   const { first_name, last_name, email, password, role_id } = req.body;
-
 
   const checkToken = req.headers.logintoken;
   if (!checkToken) {
