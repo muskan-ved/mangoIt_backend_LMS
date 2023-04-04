@@ -25,8 +25,8 @@ exports.getUserById = async (req, res) => {
       where: { id: userId, is_deleted: false },
     });
 
-    if(getUserById) {
-        res.status(200).json(getUserById)
+    if (getUserById) {
+      res.status(200).json(getUserById);
     }
     if (!getUserById) {
       res.status(404).json("User not Found!");
@@ -36,25 +36,20 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.getUsersBySearch = async(req, res) => {
-    const givenLetters = req.body.letters;
+exports.getUsersBySearch = async (req, res) => {
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
 
-    try {
-        const usersBySearch = await User.findAll({
-          where: { first_name: givenLetters, is_deleted: false },
-        });
-    
-        if(usersBySearch) {
-            res.status(200).json(usersBySearch)
-        }
-        if (!usersBySearch) {
-          res.status(404).json("User not Found!");
-        }
-      } catch (e) {
-        res.status(400).json(e);
-      }
+  const { search } = req.body;
 
-}
+  try {
+    const users = await User.findOne({});
+
+    res.send(users);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
 
 exports.registration = async (req, res) => {
   const { first_name, last_name, email, password, role_id } = req.body;
@@ -132,7 +127,7 @@ exports.loginUser = async (req, res) => {
     where: { email: req.body.email, is_deleted: false },
   });
   if (!user) {
-    res.status(404).json("User not exist with this Email!");
+    return res.status(404).json("User not exist with this Email!");
   }
 
   const validPassword = await isValidPassword(password, user.password);
