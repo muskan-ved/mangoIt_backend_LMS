@@ -12,7 +12,6 @@ const User = db.User;
 exports.registration = async (req, res) => {
   const { first_name, last_name, email, password, role_id } = req.body;
 
-  const profile_pic = req.file.path;
 
   const checkToken = req.headers.logintoken;
   if (!checkToken) {
@@ -33,7 +32,6 @@ exports.registration = async (req, res) => {
         first_name: first_name,
         last_name: last_name,
         email: email,
-        profile_pic,
         password: await hashPassword(password),
         role_id: role_id,
       });
@@ -49,7 +47,6 @@ exports.registration = async (req, res) => {
     const findLoginUser = await User.findOne({
       where: { id: login_user, is_deleted: false },
     });
-    const profile_pic = req.file.path;
 
     if (findLoginUser.role_id == 1) {
       // admin reg for learner
@@ -68,7 +65,6 @@ exports.registration = async (req, res) => {
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
-          profile_pic,
           email: email,
           password: await hashPassword(password),
           role_id: role_id,
@@ -113,6 +109,7 @@ exports.loginUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
+  const profile_pic = req.file.path;
 
   const findUser = await User.findOne({
     where: { id: userId, is_deleted: false },
