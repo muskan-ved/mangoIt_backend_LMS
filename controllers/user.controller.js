@@ -37,18 +37,15 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.getUsersBySearch = async (req, res) => {
-  const Sequelize = require("sequelize");
-  const Op = Sequelize.Op;
-
-  const { search } = req.body;
-
-  try {
-    const users = await User.findOne({});
-
-    res.send(users);
-  } catch (e) {
-    res.status(400).json(e);
-  }
+  //   const Sequelize = require("sequelize");
+  //   const Op = Sequelize.Op;
+  //   const { search } = req.body;
+  //   try {
+  //     const usersFirstName = await User.findOne({where:{first_name:search}});
+  //     res.send(usersFirstName);
+  //   } catch (e) {
+  //     res.status(400).json(e);
+  //   }
 };
 
 exports.registration = async (req, res) => {
@@ -264,12 +261,12 @@ exports.sendGmail = async (req, res) => {
     replyTo: "devendramangoit@gmail.com",
   });
 
-  const filepath = req.file.path;
+  // const filepath = req.file.path;
 
   try {
     const { result, full } = await send({
       html: "<b> demo text from mail </b>", // both for text and html
-      files: [filepath],
+      // files: [filepath],
     });
 
     res.status(200).json(full);
