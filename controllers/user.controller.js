@@ -3,6 +3,7 @@ const {
   hashPassword,
   isValidPassword,
 } = require("../helper/auth");
+
 require("dotenv").config();
 
 const jsonwebtoken = require("jsonwebtoken");
@@ -37,15 +38,17 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.getUsersBySearch = async (req, res) => {
-  //   const Sequelize = require("sequelize");
-  //   const Op = Sequelize.Op;
-  //   const { search } = req.body;
-  //   try {
-  //     const usersFirstName = await User.findOne({where:{first_name:search}});
-  //     res.send(usersFirstName);
-  //   } catch (e) {
-  //     res.status(400).json(e);
-  //   }
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
+  const { search } = req.body;
+  try {
+    const usersFirstName = await User.findOne({
+      where: { first_name: search },
+    });
+    res.send(usersFirstName);
+  } catch (e) {
+    res.status(400).json(e);
+  }
 };
 
 exports.registration = async (req, res) => {
@@ -215,9 +218,13 @@ exports.deleteUser = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { token, password } = req.body;
+
+    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+    const user_id = decode.id;
+    console.log(user_id);
     const findUser = await User.findOne({
-      where: { email, is_deleted: false },
+      where: { id: user_id, is_deleted: false },
     });
 
     if (!findUser) {
@@ -225,21 +232,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     if (findUser) {
-      const { password, confirm_password } = req.body;
-
-      if (!password || !confirm_password) {
-        return res
-          .status(400)
-          .json("password & confirm_password fields are required!");
-      }
-
-      if (password !== confirm_password) {
-        return res
-          .status(400)
-          .json("Password and confirm password are not matched!");
-      }
-
-      findUser.password = await hashPassword(confirm_password);
+      findUser.password = await hashPassword(password);
       findUser.save();
 
       res.status(202).json("password change succesfully!");
@@ -252,25 +245,42 @@ exports.resetPassword = async (req, res) => {
 exports.sendGmail = async (req, res) => {
   const { to, cc, subject } = req.body;
 
-  const send = require("gmail-send")({
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS,
-    to,
-    cc,
-    subject,
-    replyTo: "devendramangoit@gmail.com",
+  const findUser = await User.findOne({
+    where: { email: to, is_deleted: false },
   });
+  if (!findUser) {
+    return res.status(400).json("this email is not register with us!");
+  }
 
-  // const filepath = req.file.path;
-
-  try {
-    const { result, full } = await send({
-      html: "<b> demo text from mail </b>", // both for text and html
-      // files: [filepath],
+  if (findUser) {
+    const send = require("gmail-send")({
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASS,
+      to,
+      cc,
+      subject,
+      // replyTo: "devendramangoit@gmail.com",
     });
 
-    res.status(200).json(full);
-  } catch (error) {
-    res.json(error);
+    // const filepath = req.file.path;
+
+    try {
+      const { result, full } = await send({
+        html: `<p>Hi ${findUser.first_name},</p>
+        <p>There was a request to change your password!
+      <span>If you did not make this request then please ignore this email.</span></p>
+        <p>Otherwise, please click this link to change your password: <a href="http://attendance.mangoitsol.com/resetPassword"> Reset Pasword </a>
+       <span> <p>Thanks,</p>
+        <p>MangoIT Solutions</p></span>`,
+        // files: [filepath],
+      });
+      const genToken = await generateToken({
+        id: findUser.id,
+        email: findUser.email,
+      });
+      res.status(200).json(genToken);
+    } catch (error) {
+      res.json(error);
+    }
   }
 };
