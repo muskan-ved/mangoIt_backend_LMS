@@ -4,10 +4,12 @@ const {
   isValidPassword,
 } = require("../helper/auth");
 
+
 require("dotenv").config();
 
 const jsonwebtoken = require("jsonwebtoken");
 const db = require("../models/index.model");
+const { capitalizeFirstLetter } = require("../helper/help");
 const User = db.User;
 
 exports.getUsers = async (req, res) => {
@@ -38,14 +40,30 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.getUsersBySearch = async (req, res) => {
-  const Sequelize = require("sequelize");
-  const Op = Sequelize.Op;
+  // const models = Sequelize.Model;
   const { search } = req.body;
+
   try {
-    const usersFirstName = await User.findOne({
-      where: { first_name: search },
-    });
-    res.send(usersFirstName);
+    //  const fullName = await User.findAll({
+    //     attribute: first_name
+    //   })
+      
+    //     res.send(fullName)
+
+
+    // const usersFirstName = await User.findAll({
+    //   where: {
+    //     first_name: { [Op.like]: `%${search}%` },
+    //   }})
+   
+
+    // const userLastname = await User.findAll({
+    //   where: {
+    //     last_name: { [Op.like]: `%${search}%`},
+    //   }
+    // })
+    
+
   } catch (e) {
     res.status(400).json(e);
   }
@@ -228,7 +246,7 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!findUser) {
-      return res.status(400).json("this email is not register with us!");
+      return res.status(400).json("User not Found!");
     }
 
     if (findUser) {
@@ -265,11 +283,13 @@ exports.sendGmail = async (req, res) => {
     // const filepath = req.file.path;
 
     try {
+  // console.log(findUser,"44444444444444444444")
       const { result, full } = await send({
-        html: `<p>Hi ${findUser.first_name},</p>
+        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${findUser.last_name},</p>
         <p>There was a request to change your password!
       <span>If you did not make this request then please ignore this email.</span></p>
-        <p>Otherwise, please click this link to change your password: <a href="http://attendance.mangoitsol.com/resetPassword"> Reset Pasword </a>
+        <p>Otherwise, please click this link to change your password: <a href="
+        https://mangoit-lms.mangoitsol.com/resetpassword/"> Reset Pasword </a>
        <span> <p>Thanks,</p>
         <p>MangoIT Solutions</p></span>`,
         // files: [filepath],
