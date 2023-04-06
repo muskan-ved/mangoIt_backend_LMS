@@ -4,7 +4,6 @@ const {
   isValidPassword,
 } = require("../helper/auth");
 
-
 require("dotenv").config();
 
 const jsonwebtoken = require("jsonwebtoken");
@@ -40,30 +39,33 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.getUsersBySearch = async (req, res) => {
-  // const models = Sequelize.Model;
+  const sequelize = require("sequelize");
   const { search } = req.body;
 
   try {
-    //  const fullName = await User.findAll({
-    //     attribute: first_name
-    //   })
-      
-    //     res.send(fullName)
-
-
-    // const usersFirstName = await User.findAll({
-    //   where: {
-    //     first_name: { [Op.like]: `%${search}%` },
-    //   }})
-   
-
-    // const userLastname = await User.findAll({
-    //   where: {
-    //     last_name: { [Op.like]: `%${search}%`},
-    //   }
-    // })
-    
-
+    User.findAll({
+      where: {
+        [sequelize.Op.or]: {
+          namesQuery: sequelize.where(
+            sequelize.fn(
+              "concat",
+              sequelize.col("first_name"),
+              " ",
+              sequelize.col("last_name")
+            ),
+            {
+              [sequelize.Op.like]: `%${search}%`,
+            }
+          ),
+        },
+      },
+    })
+      .then((findUser) => {
+        res.status(200).send({ findUser, totalRecords: findUser.length });
+      })
+      .catch((err) => {
+        res.send({ err, msg: "Record not found!" });
+      });
   } catch (e) {
     res.status(400).json(e);
   }
@@ -283,9 +285,11 @@ exports.sendGmail = async (req, res) => {
     // const filepath = req.file.path;
 
     try {
-  // console.log(findUser,"44444444444444444444")
+      // console.log(findUser,"44444444444444444444")
       const { result, full } = await send({
-        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${findUser.last_name},</p>
+        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${
+          findUser.last_name
+        },</p>
         <p>There was a request to change your password!
       <span>If you did not make this request then please ignore this email.</span></p>
         <p>Otherwise, please click this link to change your password: <a href="
