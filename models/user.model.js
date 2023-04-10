@@ -53,21 +53,21 @@ module.exports = (sequelize, DataTypes) => {
             loggedin_by : {
                 type: DataTypes.STRING,
             },
-            // loggedin_time: {
-            //     type: DataTypes.DATE,
-            //     defaultValue: DataTypes.NOW,
-            // }
+            loggedin_time: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+            }
 
         },
         {
             sequelize,
             modelName: "users"
         })
-    sequelize.sync( { alter: true  } ).then(() => {
-        console.log('User table created successfully!');
-      }).catch((error) => {
-        console.error('Unable to create table : ', error);
-      })
+    // sequelize.sync( { alter: true  } ).then(() => {
+    //     console.log('User table created successfully!');
+    //   }).catch((error) => {
+    //     console.error('Unable to create table : ', error);
+    //   })
 
     return User
 }
