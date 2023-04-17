@@ -85,7 +85,7 @@ exports.registration = async (req, res) => {
         return res.status(400).json("Email already Registered!");
       }
 
-      if(!findUser) {
+      if (!findUser) {
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
@@ -99,7 +99,7 @@ exports.registration = async (req, res) => {
 
     if (!email || !password) {
       // learner reg self
-     return res.status(400).json("Email and Password Required!");
+      return res.status(400).json("Email and Password Required!");
     }
 
     const findUser = await User.findOne({
@@ -192,47 +192,43 @@ exports.loginUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
-  const profile_pic = req.file.path;
-
+  // const profile_pic = req.file.path;
   const findUser = await User.findOne({
     where: { id: userId, is_deleted: false },
   });
   if (!findUser) {
     res.status(404).json("User not Found!");
   }
-  if (findUser) {
-    const { first_name, last_name, email } = req.body;
 
-    // password: await hashPassword(req.body.password)
+  if (findUser) {
+    const { first_name, last_name, email, role_id } = req.body;
+
     const token = req.headers.logintoken;
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
     const updated_by = decode.id;
-
-    const firstName = await User.findOne({ where: { first_name: first_name } });
-    const lastName = await User.findOne({ where: { last_name: last_name } });
-    const findEmail = await User.findOne({ where: { email: req.body.email } });
-
-    if (!firstName || !lastName) {
-      const updateName = await User.update(
+    const checkEmail = await User.findOne({ where: { email: email } });
+    const existUser = await User.findOne({ where: { email: email, id: userId } })
+    if (!checkEmail || existUser) {
+      const update = await User.update(
         {
           first_name: first_name,
           last_name: last_name,
+          role_id: role_id,
+          email: email,
           updated_by: updated_by,
         },
         { where: { id: userId } }
       );
       const updatedUser = await User.findOne({ where: { id: userId } });
-      res.status(201).json(updatedUser);
+      return res.status(201).json(updatedUser);
     }
 
-    if ((firstName && lastName) || !findEmail) {
-      const updateUser = await User.update(
-        { email: email, updated_by: updated_by },
-        { where: { id: userId } }
-      );
-      const updatedUser = await User.findOne({ where: { id: userId } });
-      res.status(201).json(updatedUser);
+ 
+    if (checkEmail) {
+      return res.status(400).json('Email already Registered!')
     }
+  
+
   }
 };
 
