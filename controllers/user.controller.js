@@ -72,21 +72,43 @@ exports.getUsersBySearch = async (req, res) => {
 };
 
 exports.registration = async (req, res) => {
-  const { first_name, last_name, email, password, role_id } = req.body;
-
+  const { first_name, last_name, email, password, role_id, loggedin_by } = req.body;
   const checkToken = req.headers.logintoken;
+
   if (!checkToken) {
+    if ((email && loggedin_by === 'facebook') || (email && loggedin_by === 'google')) {
+      //  return res.send('fb or google')
+      const findUser = await User.findOne({
+        where: { email: email, is_deleted: false },
+      });
+      if (findUser) {
+        return res.status(400).json("Email already Registered!");
+      }
+
+      if(!findUser) {
+        const user = await User.create({
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          role_id: role_id,
+          loggedin_by: loggedin_by
+        });
+        return res.status(201).json(user)
+      }
+    }
+
     if (!email || !password) {
       // learner reg self
-      res.status(400).json("Email and Password Required!");
+     return res.status(400).json("Email and Password Required!");
     }
 
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
     });
     if (findUser) {
-      res.status(400).json("Email already Registered!");
+      return res.status(400).json("Email already Registered!");
     }
+
 
     if (!findUser) {
       const user = await User.create({
@@ -96,7 +118,7 @@ exports.registration = async (req, res) => {
         password: await hashPassword(password),
         role_id: role_id,
       });
-      res.status(201).json(user);
+      return res.status(201).json(user);
     }
   }
 
@@ -287,9 +309,8 @@ exports.sendGmail = async (req, res) => {
     try {
       // console.log(findUser,"44444444444444444444")
       const { result, full } = await send({
-        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${
-          findUser.last_name
-        },</p>
+        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${findUser.last_name
+          },</p>
         <p>There was a request to change your password!
       <span>If you did not make this request then please ignore this email.</span></p>
         <p>Otherwise, please click this link to change your password: <a href="
