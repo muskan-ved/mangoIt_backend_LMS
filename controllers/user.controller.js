@@ -192,7 +192,10 @@ exports.loginUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
-  // const profile_pic = req.file.path;
+  let profile_pic;
+  if(req.file){
+    profile_pic = req.file.path;
+  }
   const findUser = await User.findOne({
     where: { id: userId, is_deleted: false },
   });
@@ -216,6 +219,7 @@ exports.updateUser = async (req, res) => {
           role_id: role_id,
           email: email,
           updated_by: updated_by,
+          profile_pic: profile_pic,
         },
         { where: { id: userId } }
       );
