@@ -4,6 +4,55 @@ const jsonwebtoken = require('jsonwebtoken')
 
 const Session = db.Session
 
+exports.getSessions = async (req, res) => {
+    // res.send('all couserse')
+    try {
+        const sessions = await Session.findAll({ where: { is_deleted: false } });
+        res.status(200).json(sessions);
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
+exports.getSessionById = async (req, res) => {
+    // res.send("all session");
+    const sessionId = req.params.id;
+    try {
+        const sessionById = await Session.findOne({
+            where: { id: sessionId, is_deleted: false },
+        });
+
+        if (sessionById) {
+            res.status(200).json(sessionById);
+        }
+        if (!sessionById) {
+            res.status(404).json("Session not Found!");
+        }
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
+exports.getSessionBySearch = async (req, res) => {
+    // res.send('searched session');
+    try {
+        const Sequelize = require('sequelize');
+        const Op = Sequelize.Op;
+        const { search } = req.body;
+        const sessionSerached = await Session.findAll({
+            where: {
+                title: {
+                    [Op.like]: `%${search}%`
+                },
+                is_deleted: false 
+            }
+        })
+        res.status(200).send({sessionSerached, totalSessions: sessionSerached.length})
+    } catch (e) {
+        res.status(400).json(e)
+    }
+}
+
 exports.createSession = async (req, res) => {
     const {
         title,
@@ -45,13 +94,13 @@ exports.updateSession = async (req, res) => {
     } = req.body
 
     const sessionId = req.params.id
-   
+
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
     const audio_video = req.file.path
- 
+
     try {
         const sessionUpdate = await Session.update({
             title,
@@ -61,7 +110,7 @@ exports.updateSession = async (req, res) => {
             type,
             audio_video,
             updated_by: user_id,
-        },{ where: { id: sessionId } })
+        }, { where: { id: sessionId } })
 
         const updatedSession = await Session.findOne({ where: { id: sessionId } })
         res.status(201).send(updatedSession)

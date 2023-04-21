@@ -4,6 +4,55 @@ const jsonwebtoken = require('jsonwebtoken')
 
 const Module = db.Module
 
+exports.getModules = async (req, res) => {
+    // res.send('all modules');
+    try {
+        const modules = await Module.findAll({ where: { is_deleted: false } });
+        res.status(200).json(modules);
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
+exports.getModuleById = async (req, res) => {
+    // res.send("module By id");
+    const moduleId = req.params.id;
+    try {
+        const moduleById = await Module.findOne({
+            where: { id: moduleId, is_deleted: false },
+        });
+
+        if (moduleById) {
+            res.status(200).json(moduleById);
+        }
+        if (!moduleById) {
+            res.status(404).json("Module not Found!");
+        }
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
+exports.getModuleBySearch = async (req, res) =>{
+    // res.send('module by search');
+    try {
+        const Sequelize = require('sequelize');
+        const Op = Sequelize.Op;
+        const { search } = req.body;
+        const moduleSerached = await Module.findAll({
+            where: {
+                title: {
+                    [Op.like]: `%${search}%`
+                }, 
+                is_deleted: false  
+            }
+        })
+        res.status(200).send({moduleSerached, totalSessions: moduleSerached.length})
+    } catch (e) {
+        res.status(400).json(e)
+    }
+}
+
 exports.createModule = async (req, res) => {
     const {
         title,
@@ -14,7 +63,7 @@ exports.createModule = async (req, res) => {
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
-    
+
 
     try {
         moduleCreated = await Module.create({
@@ -52,8 +101,8 @@ exports.updateModule = async (req, res) => {
             description: description,
             course_id: course_id,
             user_id: user_id,
-            updated_by:user_id
-        },{ where: { id: moduleId } })
+            updated_by: user_id
+        }, { where: { id: moduleId } })
 
         const updatedModule = await Module.findOne({ where: { id: moduleId } })
         res.status(201).json(updatedModule)
@@ -81,7 +130,7 @@ exports.deleteModule = async (req, res) => {
             res.status(201).send(moduleDeleted)
         }
 
-        if(!findModule){
+        if (!findModule) {
             res.status(404).json('No module awailable!')
         }
     }

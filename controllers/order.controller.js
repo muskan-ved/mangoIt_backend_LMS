@@ -4,6 +4,35 @@ const jsonwebtoken = require('jsonwebtoken')
 const Order = db.Order
 const User = db.User
 
+exports.getOrdres = async(req, res)=>{
+    // res.send('all orders')
+    try {
+        const orders = await Order.findAll({ where: { is_deleted: false } });
+        res.status(200).json(orders);
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
+exports.getOrderById = async(req,res) =>{
+    // res.send('order byid')
+    const orderId = req.params.id;
+    try {
+        const orderById = await Order.findOne({
+            where: { id: orderId, is_deleted: false },
+        });
+
+        if (orderById) {
+            res.status(200).json(orderById);
+        }
+        if (!orderById) {
+            res.status(404).json("Order not Found!");
+        }
+    } catch (e) {
+        res.status(400).json(e);
+    }
+}
+
 exports.createOrder = async (req, res) => {
     const {
         user_id,
