@@ -13,7 +13,7 @@ const User = db.User;
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({ where: { is_deleted: false } });
     res.status(200).json(users);
   } catch (e) {
     res.status(400).json(e);
@@ -58,6 +58,7 @@ exports.getUsersBySearch = async (req, res) => {
             }
           ),
         },
+        is_deleted: false
       },
     })
       .then((findUser) => {
@@ -72,53 +73,66 @@ exports.getUsersBySearch = async (req, res) => {
 };
 
 exports.registration = async (req, res) => {
-  const { first_name, last_name, email, password, role_id, loggedin_by } = req.body;
+
+  const { first_name, last_name, email, password, role_id, profile_pic, loggedin_by } = req.body;
   const checkToken = req.headers.logintoken;
 
   if (!checkToken) {
+    const findUser = await User.findOne({
+      where: { email: email, is_deleted: false },
+    });
     if ((email && loggedin_by === 'facebook') || (email && loggedin_by === 'google')) {
       //  return res.send('fb or google')
-      const findUser = await User.findOne({
-        where: { email: email, is_deleted: false },
-      });
-      if (findUser) {
-        return res.status(400).json("Email already Registered!");
-      }
 
-      if (!findUser) {
+
+      if (findUser !== null) {
+        // return res.status(400).json("Email already Registered!")
+        const user = await User.update({
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          profile_pic: profile_pic,
+          loggedin_by: loggedin_by
+        },
+          { where: { id: findUser.dataValues.id } });
+        const updatedUser = await User.findOne({ where: { id: findUser.dataValues.id } });
+        const token = await generateToken({
+          id: findUser.dataValues.id,
+          email: email,
+        });
+        return res.status(201).json({ updatedUser, loginToken: token })
+
+      } else {
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
           email: email,
-          role_id: role_id,
+          profile_pic: profile_pic,
           loggedin_by: loggedin_by
         });
-        return res.status(201).json(user)
+        const token = await generateToken({
+          id: user.dataValues.id,
+          email: email,
+        });
+
+        return res.status(201).json({ user, loginToken: token })
       }
-    }
-
-    if (!email || !password) {
-      // learner reg self
-      return res.status(400).json("Email and Password Required!");
-    }
-
-    const findUser = await User.findOne({
-      where: { email: email, is_deleted: false },
-    });
-    if (findUser) {
-      return res.status(400).json("Email already Registered!");
-    }
-
-
-    if (!findUser) {
-      const user = await User.create({
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        password: await hashPassword(password),
-        role_id: role_id,
-      });
-      return res.status(201).json(user);
+    } else {
+      if (findUser) {
+        // learner self registration
+        return res.status(400).json("Email already Registered!");
+      } else if (!email || !password) {
+        return res.status(400).json("Email and Password Required!");
+      } else {
+        const user = await User.create({
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          password: await hashPassword(password),
+          role_id: role_id,
+        });
+        return res.status(201).json(user);
+      }
     }
   }
 
@@ -193,7 +207,7 @@ exports.loginUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
   let profile_pic;
-  if(req.file){
+  if (req.file) {
     profile_pic = req.file.path;
   }
   const findUser = await User.findOne({
@@ -227,11 +241,11 @@ exports.updateUser = async (req, res) => {
       return res.status(201).json(updatedUser);
     }
 
- 
+
     if (checkEmail) {
       return res.status(400).json('Email already Registered!')
     }
-  
+
 
   }
 };

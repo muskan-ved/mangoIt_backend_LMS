@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             loggedin_by : {
                 type: DataTypes.STRING,
+                defaultValue: '',
             },
             loggedin_time: {
                 type: DataTypes.DATE,
