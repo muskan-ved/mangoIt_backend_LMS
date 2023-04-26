@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
             description: {
                 type: DataTypes.STRING,
             },
+            course_id: {
+                type: DataTypes.INTEGER,
+            },
             module_id: {
                 type: DataTypes.INTEGER,
             },
@@ -28,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
             type: {
                 type: DataTypes.STRING,
             },
-            audio_video : {
+            attachment : {
                 type : DataTypes.STRING,
             },
             created_by: {

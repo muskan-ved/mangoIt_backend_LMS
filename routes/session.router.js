@@ -7,8 +7,8 @@ const {upload} = require('../helper/upload')
 router.get("/getsessions", webProtection, getSessions)
 router.get("/getsession/:id",webProtection, getSessionById)
 router.get("/getsessionbysearch", webProtection, getSessionBySearch)
-router.post("/createsession", webProtection , upload.single("audio_video"), createSession)
-router.put("/updatesession/:id", webProtection, upload.single("audio_video"), updateSession )
+router.post("/createsession", webProtection , upload.single("attachment"), createSession)
+router.put("/updatesession/:id", webProtection, upload.single("attachment"), updateSession )
 router.delete("/deletesession/:id", webProtection, deleteSession )
 
 
