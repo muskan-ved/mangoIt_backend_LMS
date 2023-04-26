@@ -57,25 +57,30 @@ exports.createSession = async (req, res) => {
     const {
         title,
         description,
-        type,
+        course_id,
         module_id,
+        type,
     } = req.body
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
-    const audio_video = req.file.path
+    let attachment;
+    if (req.file) {
+        attachment = req.file.path;
+    }
 
     try {
         const sessionCreated = await Session.create({
             title,
             description,
+            course_id,
             module_id,
             user_id: user_id,
             type,
             created_by: user_id,
-            audio_video,
+            attachment,
         })
         res.status(201).send(sessionCreated)
     }
@@ -89,6 +94,7 @@ exports.updateSession = async (req, res) => {
     const {
         title,
         description,
+        course_id,
         type,
         module_id,
     } = req.body
@@ -99,16 +105,20 @@ exports.updateSession = async (req, res) => {
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
-    const audio_video = req.file.path
+    let attachment;
+    if (req.file) {
+        attachment = req.file.path;
+    }
 
     try {
         const sessionUpdate = await Session.update({
             title,
             description,
             module_id,
+            course_id,
             user_id: user_id,
             type,
-            audio_video,
+            attachment,
             updated_by: user_id,
         }, { where: { id: sessionId } })
 
