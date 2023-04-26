@@ -17,19 +17,20 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 // allowNull: false,
             },
-            description: {
+            long_description: {
                 type: DataTypes.STRING,
             },
-            trailer_url: {
+            short_description: {
                 type: DataTypes.STRING,
             },
-            isVisible: {
+            // trailer_url: {
+            //     type: DataTypes.STRING,
+            // },
+            status: {
                 type: DataTypes.BOOLEAN,
-                defaultValue: false,
             },
-            isChargeable: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
+            is_chargeable: {
+                type: DataTypes.BOOLEAN,  
             },
             created_by: {
                 type: DataTypes.INTEGER,
