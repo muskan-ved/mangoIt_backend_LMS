@@ -58,6 +58,7 @@ exports.createModule = async (req, res) => {
         title,
         description,
         course_id,
+        status,
     } = req.body
 
     const token = req.headers.logintoken
@@ -72,6 +73,7 @@ exports.createModule = async (req, res) => {
             course_id: course_id,
             user_id: user_id,
             created_by: user_id,
+            status,
         })
         res.status(201).json(moduleCreated)
     }
@@ -87,6 +89,7 @@ exports.updateModule = async (req, res) => {
         title,
         description,
         course_id,
+        status,
     } = req.body
 
     const moduleId = req.params.id
@@ -101,7 +104,8 @@ exports.updateModule = async (req, res) => {
             description: description,
             course_id: course_id,
             user_id: user_id,
-            updated_by: user_id
+            updated_by: user_id,
+            status,
         }, { where: { id: moduleId } })
 
         const updatedModule = await Module.findOne({ where: { id: moduleId } })

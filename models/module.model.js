@@ -31,6 +31,9 @@ module.exports = (sequelize, DataTypes) => {
             updated_by: {
                 type: DataTypes.INTEGER,
             },
+            status: {
+                type: DataTypes.STRING,
+            },
             is_deleted : {
                 type : DataTypes.BOOLEAN,
                 defaultValue: false,

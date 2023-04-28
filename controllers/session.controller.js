@@ -60,6 +60,7 @@ exports.createSession = async (req, res) => {
         course_id,
         module_id,
         type,
+        status
     } = req.body
 
     const token = req.headers.logintoken
@@ -78,6 +79,7 @@ exports.createSession = async (req, res) => {
             course_id,
             module_id,
             user_id: user_id,
+            status,
             type,
             created_by: user_id,
             attachment,
@@ -96,6 +98,7 @@ exports.updateSession = async (req, res) => {
         description,
         course_id,
         type,
+        status,
         module_id,
     } = req.body
 
@@ -118,6 +121,7 @@ exports.updateSession = async (req, res) => {
             course_id,
             user_id: user_id,
             type,
+            status,
             attachment,
             updated_by: user_id,
         }, { where: { id: sessionId } })
