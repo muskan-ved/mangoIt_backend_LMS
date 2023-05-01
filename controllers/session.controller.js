@@ -1,17 +1,48 @@
 const db = require('../models/index.model')
 require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
-
+const { sequelize } = require('sequelize')
 const Session = db.Session
 
 exports.getSessions = async (req, res) => {
+    // console.log(db)
     // res.send('all couserse')
+    // const [results, metadata] = await sequelize.query(
+    //     "SELECT * FROM Invoices JOIN Users ON Invoices.userId = Users.id"
+    //   );
+
+    //   console.log(JSON.stringify(results, null, 2));
+
+    // const qry = await sequelize.query("SELECT * FROM `sessions` WHERE id = 1;")
+    // console.log(JSON.stringify(qry, null, 2));
+
+
     try {
-        const sessions = await Session.findAll({ where: { is_deleted: false } });
+        const sessions = await Session.findAll({
+            where: {
+                is_deleted: false
+            },
+            include: [{
+                model: db.Course,
+            },
+            {
+                model: db.Module,
+            },
+            ],
+            // include: [{
+            //     model: db.Module
+            // }]
+        });
         res.status(200).json(sessions);
     } catch (e) {
         res.status(400).json(e);
     }
+
+    // Session.findAll({
+    //     include: [{ model: db.Course }]
+    // }).then(courses => {
+    //     console.log(courses);
+    // });
 }
 
 exports.getSessionById = async (req, res) => {
@@ -44,10 +75,10 @@ exports.getSessionBySearch = async (req, res) => {
                 title: {
                     [Op.like]: `%${search}%`
                 },
-                is_deleted: false 
+                is_deleted: false
             }
         })
-        res.status(200).send({sessionSerached, totalSessions: sessionSerached.length})
+        res.status(200).send({ sessionSerached, totalSessions: sessionSerached.length })
     } catch (e) {
         res.status(400).json(e)
     }
