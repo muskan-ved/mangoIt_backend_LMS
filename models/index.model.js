@@ -22,5 +22,19 @@ db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
 db.Payment = require('./payment.model')(sequelize,Sequelize)
 db.Token = require('./token.model')(sequelize,Sequelize)
 
+// User.hasMany(Invoice);
+// Invoice.belongsTo(User);
+
+db.Course.hasMany(db.Session, {foreignKey: 'course_id'});
+db.Session.belongsTo(db.Course, {foreignKey: 'course_id'})
+
+db.Module.hasMany(db.Session, {foreignKey: 'module_id'});
+db.Session.belongsTo(db.Module, {foreignKey: 'module_id'})
+
+
+
+
+
 //export deb
 module.exports = db
+

@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             status: {
                 type: DataTypes.STRING,
+                defaultValue: 'active',
             },
             is_deleted: {
                 type : DataTypes.BOOLEAN,
@@ -53,10 +54,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "session"
+            modelName: "sessions"
         }
     )
-
+    //   const qry = sequelize.query("SELECT * FROM sessions JOIN courses ON sessions.id = courses.id")
+    // "SELECT * FROM Invoices JOIN Users ON Invoices.userId = Users.id"
+    
     //    sequelize.sync( { alter: true } ).then(() => {
     //     console.log('session table created successfully!');
     //   }).catch((error) => {
