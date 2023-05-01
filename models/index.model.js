@@ -1,3 +1,6 @@
+
+ 
+
 const Sequelize = require('sequelize')
 require('dotenv').config()
 const sequelize = new Sequelize (process.env.DATABASE, "root", process.env.PASSWORD, {
@@ -37,4 +40,3 @@ db.Session.belongsTo(db.Module, {foreignKey: 'module_id'})
 
 //export deb
 module.exports = db
-
