@@ -37,5 +37,6 @@ db.Session.belongsTo(db.Module, {foreignKey: 'module_id'})
 
 
 
+
 //export deb
 module.exports = db

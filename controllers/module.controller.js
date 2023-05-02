@@ -121,7 +121,6 @@ exports.updateModule = async (req, res) => {
 exports.deleteModule = async (req, res) => {
     const moduleId = req.params.id
 
-
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
