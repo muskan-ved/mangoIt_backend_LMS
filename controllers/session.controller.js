@@ -5,18 +5,6 @@ const { sequelize } = require('sequelize')
 const Session = db.Session
 
 exports.getSessions = async (req, res) => {
-    // console.log(db)
-    // res.send('all couserse')
-    // const [results, metadata] = await sequelize.query(
-    //     "SELECT * FROM Invoices JOIN Users ON Invoices.userId = Users.id"
-    //   );
-
-    //   console.log(JSON.stringify(results, null, 2));
-
-    // const qry = await sequelize.query("SELECT * FROM `sessions` WHERE id = 1;")
-    // console.log(JSON.stringify(qry, null, 2));
-
-
     try {
         const sessions = await Session.findAll({
             where: {
@@ -38,11 +26,6 @@ exports.getSessions = async (req, res) => {
         res.status(400).json(e);
     }
 
-    // Session.findAll({
-    //     include: [{ model: db.Course }]
-    // }).then(courses => {
-    //     console.log(courses);
-    // });
 }
 
 exports.getSessionById = async (req, res) => {
