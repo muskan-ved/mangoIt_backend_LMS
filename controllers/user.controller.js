@@ -12,9 +12,35 @@ const { capitalizeFirstLetter } = require("../helper/help");
 const User = db.User;
 
 exports.getUsers = async (req, res) => {
+  const sequelize = require("sequelize");
+  const search = req.params.search;
   try {
-    const users = await User.findAll({ where: { is_deleted: false } });
-    res.status(200).json(users);
+    if (search) {
+      const users = await User.findAll({
+        where: {
+          [sequelize.Op.or]: {
+            namesQuery: sequelize.where(
+              sequelize.fn(
+                "concat",
+                sequelize.col("first_name"),
+                " ",
+                sequelize.col("last_name")
+              ),
+              {
+                [sequelize.Op.like]: `%${search}%`,
+              }
+            ),
+          },
+          is_deleted: false
+        }
+      });
+      res.status(200).json(users);
+
+    } else {
+      const users = await User.findAll({ where: { is_deleted: false } });
+      res.status(200).json(users);
+    }
+
   } catch (e) {
     res.status(400).json(e);
   }
@@ -38,39 +64,6 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.getUsersBySearch = async (req, res) => {
-  const sequelize = require("sequelize");
-  const { search } = req.body;
-
-  try {
-    User.findAll({
-      where: {
-        [sequelize.Op.or]: {
-          namesQuery: sequelize.where(
-            sequelize.fn(
-              "concat",
-              sequelize.col("first_name"),
-              " ",
-              sequelize.col("last_name")
-            ),
-            {
-              [sequelize.Op.like]: `%${search}%`,
-            }
-          ),
-        },
-        is_deleted: false
-      },
-    })
-      .then((findUser) => {
-        res.status(200).send({ findUser, totalRecords: findUser.length });
-      })
-      .catch((err) => {
-        res.send({ err, msg: "Record not found!" });
-      });
-  } catch (e) {
-    res.status(400).json(e);
-  }
-};
 
 exports.registration = async (req, res) => {
 
