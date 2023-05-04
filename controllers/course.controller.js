@@ -39,7 +39,7 @@ exports.getCourseBySearch = async (req, res) =>{
     try {
         const Sequelize = require('sequelize');
         const Op = Sequelize.Op;
-        const { search } = req.body;
+        const  search  = req.params.search;
         const courseSerached = await Course.findAll({
             where: {
                 title: {

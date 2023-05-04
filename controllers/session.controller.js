@@ -5,23 +5,174 @@ const { sequelize } = require('sequelize')
 const Session = db.Session
 
 exports.getSessions = async (req, res) => {
+    const Sequelize = require('sequelize');
+    const Op = Sequelize.Op;
+    const search = req.params.search;
+    const {
+        course_id,
+        module_id,
+        status
+    } = req.body
     try {
-        const sessions = await Session.findAll({
-            where: {
-                is_deleted: false
-            },
-            include: [{
-                model: db.Course,
-            },
-            {
-                model: db.Module,
-            },
-            ],
-            // include: [{
-            //     model: db.Module
-            // }]
-        });
-        res.status(200).json(sessions);
+        if (search) {
+            const sessionSerached = await Session.findAll({
+                where: {
+                    title: {
+                        [Op.like]: `%${search}%`
+                    },
+                    is_deleted: false
+                },
+                include: [{
+                    model: db.Course,
+
+                },
+                {
+                    model: db.Module,
+
+                },
+                ],
+            })
+            res.status(200).json(sessionSerached)
+        }
+        else if (course_id && module_id && status) {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    course_id,
+                    module_id,
+                    status,
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id == 0 && module_id && status){
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    module_id,
+                    status,
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id == 0 && module_id == 0 && status){
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    status,
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id == 0 && module_id == 0 && status == 0){
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id && module_id == 0 && status) {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    course_id,            
+                    status,
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id && module_id == 0 && status == 0) {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    course_id,            
+                
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else if (course_id && module_id && status== 0) {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    course_id,
+                    module_id,
+                    
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
+        else {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+
+                },
+                include: [{
+                    model: db.Course,
+
+                },
+                {
+                    model: db.Module,
+
+                },
+                ],
+                // include: [{
+                //     model: db.Module
+                // }]
+            });
+            res.status(200).json(sessions);
+        }
     } catch (e) {
         res.status(400).json(e);
     }
@@ -47,25 +198,6 @@ exports.getSessionById = async (req, res) => {
     }
 }
 
-exports.getSessionBySearch = async (req, res) => {
-    // res.send('searched session');
-    try {
-        const Sequelize = require('sequelize');
-        const Op = Sequelize.Op;
-        const { search } = req.body;
-        const sessionSerached = await Session.findAll({
-            where: {
-                title: {
-                    [Op.like]: `%${search}%`
-                },
-                is_deleted: false
-            }
-        })
-        res.status(200).send({ sessionSerached, totalSessions: sessionSerached.length })
-    } catch (e) {
-        res.status(400).json(e)
-    }
-}
 
 exports.createSession = async (req, res) => {
     const {
