@@ -52,7 +52,7 @@ exports.getSessions = async (req, res) => {
             });
             res.status(200).json(sessions);
         }
-        else if (course_id == 0 && module_id && status){
+        else if (course_id == 0 && module_id && status) {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
@@ -69,7 +69,7 @@ exports.getSessions = async (req, res) => {
             });
             res.status(200).json(sessions);
         }
-        else if (course_id == 0 && module_id == 0 && status){
+        else if (course_id == 0 && module_id == 0 && status) {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
@@ -85,7 +85,7 @@ exports.getSessions = async (req, res) => {
             });
             res.status(200).json(sessions);
         }
-        else if (course_id == 0 && module_id == 0 && status == 0){
+        else if (course_id == 0 && module_id == 0 && status == 0) {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
@@ -104,7 +104,7 @@ exports.getSessions = async (req, res) => {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
-                    course_id,            
+                    course_id,
                     status,
                 },
                 include: [{
@@ -121,8 +121,8 @@ exports.getSessions = async (req, res) => {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
-                    course_id,            
-                
+                    course_id,
+
                 },
                 include: [{
                     model: db.Course,
@@ -134,13 +134,13 @@ exports.getSessions = async (req, res) => {
             });
             res.status(200).json(sessions);
         }
-        else if (course_id && module_id && status== 0) {
+        else if (course_id && module_id && status == 0) {
             const sessions = await Session.findAll({
                 where: {
                     is_deleted: false,
                     course_id,
                     module_id,
-                    
+
                 },
                 include: [{
                     model: db.Course,
@@ -185,6 +185,15 @@ exports.getSessionById = async (req, res) => {
     try {
         const sessionById = await Session.findOne({
             where: { id: sessionId, is_deleted: false },
+            include: [{
+                model: db.Course,
+
+            },
+            {
+                model: db.Module,
+
+            },
+            ],
         });
 
         if (sessionById) {
