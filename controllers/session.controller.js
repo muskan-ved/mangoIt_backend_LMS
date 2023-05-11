@@ -69,6 +69,22 @@ exports.getSessions = async (req, res) => {
             });
             res.status(200).json(sessions);
         }
+            else if (course_id == 0 && module_id && status === 0) {
+            const sessions = await Session.findAll({
+                where: {
+                    is_deleted: false,
+                    module_id,                  
+                },
+                include: [{
+                    model: db.Course,
+                },
+                {
+                    model: db.Module,
+                },
+                ],
+            });
+            res.status(200).json(sessions);
+        }
         else if (course_id == 0 && module_id == 0 && status) {
             const sessions = await Session.findAll({
                 where: {
@@ -167,9 +183,6 @@ exports.getSessions = async (req, res) => {
 
                 },
                 ],
-                // include: [{
-                //     model: db.Module
-                // }]
             });
             res.status(200).json(sessions);
         }
@@ -191,7 +204,6 @@ exports.getSessionById = async (req, res) => {
             },
             {
                 model: db.Module,
-
             },
             ],
         });
