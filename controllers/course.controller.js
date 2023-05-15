@@ -131,8 +131,6 @@ exports.deleteCourse = async (req, res) => {
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const deleted_by = decode.id
-
-
     try {
         findCourse = await Course.findOne({ where: { id: courseId } })
         if (findCourse) {
