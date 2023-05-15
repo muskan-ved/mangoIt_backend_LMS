@@ -10,9 +10,7 @@ router.post('/registration', webProtection, registration)
 router.post('/loginuser', webProtection ,loginUser)
 router.put('/updateuser/:id', webProtection , upload.single("profile_pic") , updateUser)
 router.delete('/deleteuser/:id',webProtection, deleteUser)
-
 router.post('/resetpassword', webProtection, resetPassword)
-
 router.post('/sendgmail', webProtection, upload.single("attachment"), sendGmail)
 
 module.exports = router
