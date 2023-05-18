@@ -4,7 +4,7 @@ const {webProtection} = require('../helper/auth')
 const router = express.Router()
 const {upload} = require('../helper/upload')
 
-router.get("/getcourses", webProtection, getCourses)
+router.post("/getcourses/:search?", webProtection, getCourses)
 router.get("/getcourse/:id",webProtection, getCourseById)
 router.get("/getcoursebysearch/:search", webProtection, getCourseBySearch)
 router.post('/createcourse', webProtection, upload.single("audio_video_trailer") , createCourse)

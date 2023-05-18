@@ -3,27 +3,147 @@ require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 
 const Module = db.Module
+const Session = db.Session
 
 exports.getModules = async (req, res) => {
+    const Sequelize = require('sequelize');
+    const Op = Sequelize.Op;
     const search = req.params.search;
+    const {
+        course_id,
+        status
+    } = req.body
     try {
-        if(search){
-            const Sequelize = require('sequelize');
-            const Op = Sequelize.Op;
-            const  search = req.params.search;
-            const moduleSerached = await Module.findAll({
-                where: {
-                    title: {
-                        [Op.like]: `%${search}%`
-                    }, 
-                    is_deleted: false  
-                }
-            })
-            res.status(200).json(moduleSerached)
-        }else{
-        const modules = await Module.findAll({ where: { is_deleted: false } });
-        res.status(200).json(modules);
-        }
+        //     if (search) {
+        //         const moduleSerached = await Module.findAll({
+        //             where: {
+        //                 title: {
+        //                     [Op.like]: `%${search}%`
+        //                 },
+        //                 is_deleted: false
+        //             },
+        //             include: [{
+        //                 model: db.Course,
+
+        //             }],
+        //         })
+        //         res.status(200).json(moduleSerached)
+        //     }
+        //     else if (course_id && status) {
+        //         const modules = await Module.findAll({
+        //             where: {
+        //                 is_deleted: false,
+        //                 course_id,
+        //                 status,
+
+        //             },
+        //             include: [{
+        //                 model: db.Course,
+        //             }
+        //             ],
+        //         });
+        //        res.status(200).json(modules);
+        //     }
+        //     else if (course_id && status === 0) {
+        //         const modules = await Module.findAll({
+        //             where: {
+        //                 is_deleted: false,
+        //                 course_id,               
+
+        //             },
+        //             include: [{
+        //                 model: db.Course,
+        //             }
+        //             ],
+        //         });
+        //        res.status(200).json(modules);
+        //     }
+        //     else if (course_id === 0 && status) {
+        //         const modules = await Module.findAll({
+        //             where: {
+        //                 is_deleted: false,
+        //                 status,               
+
+        //             },
+        //             include: [{
+        //                 model: db.Course,
+        //             }
+        //             ],
+        //         });
+        //        res.status(200).json(modules);
+        //     }
+        //     else if (course_id === 0 && status === 0) {
+        //         const modules = await Module.findAll({
+        //             where: {
+        //                 is_deleted: false,              
+
+        //             },
+        //             include: [{
+        //                 model: db.Course,
+        //             }
+        //             ],
+        //         });
+        //        res.status(200).json(modules);
+        //     }
+        //     else {
+
+        // const sessions = await Session.findAll({
+        //     where: {
+        //         is_deleted: false,
+
+        //     },
+        //     include: [{
+        //         model: db.Course,
+
+        //     },
+        //     {
+        //         model: db.Module,
+
+        //     },
+        //     ],
+        // });
+
+
+
+        const modules = await Module.findAll({
+            where: {
+                is_deleted: false,
+
+            },
+            include: [{
+                model: db.Course,
+
+            }
+            ],
+        });
+        // res.status(200).json(modules);
+
+        const moduleCounts = await Session.findAll({
+            attributes: [
+                'module_id',
+                [Sequelize.fn('COUNT', Sequelize.col('module_id')), 'sessionCount']
+            ],
+            group: ['module_id']
+        });
+
+        const moduleCountsMap = new Map();
+        moduleCounts.forEach((count) => {
+            moduleCountsMap.set(count.module_id, count.sessionCount);
+        });
+
+        // Combine the moduleCounts with modules
+        const combinedArray = modules.map((module) => {
+            const sessionCount = moduleCounts.find((count) => count.module_id === module.id) || { "sessionCount": 0 }
+
+            return {
+                module,
+                sessionCount: sessionCount
+            };
+        });
+        res.status(200).json(combinedArray);
+
+        // }
+
     } catch (e) {
         res.status(400).json(e);
     }

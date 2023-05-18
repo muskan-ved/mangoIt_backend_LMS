@@ -31,8 +31,11 @@ db.Session.belongsTo(db.Course, {foreignKey: 'course_id'})
 db.Module.hasMany(db.Session, {foreignKey: 'module_id'});
 db.Session.belongsTo(db.Module, {foreignKey: 'module_id'})
 
+db.Course.hasMany(db.Module, {foreignKey: 'course_id'});
+db.Module.belongsTo(db.Course, {foreignKey: 'course_id'})
 
-
+// db.Session.hasMany(db.Module, {foreignKey: 'session_id'});
+// db.Module.belongsTo(db.Session, {foreignKey: 'session_id'})
 
 
 //export deb

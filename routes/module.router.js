@@ -3,7 +3,7 @@ const {getModules,getModuleById, createModule, updateModule, deleteModule } = re
 const { webProtection } = require('../helper/auth')
 const router = express.Router()
 
-router.get('/getmodules/:search?', webProtection, getModules)
+router.post('/getmodules/:search?', webProtection, getModules)
 router.get('/getmodule/:id',webProtection, getModuleById)
 router.post('/createmodule', webProtection, createModule)
 router.put('/updatemodule/:id', webProtection, updateModule)

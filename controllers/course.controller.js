@@ -7,9 +7,70 @@ const Session = db.Session
 
 exports.getCourses = async (req, res) => {
     // res.send('All cousres');
+    const Sequelize = require('sequelize');
+    const Op = Sequelize.Op;
+    const search = req.params.search;
+    const {
+        type,
+        status
+    } = req.body
     try {
-        const courses = await Course.findAll({ where: { is_deleted: false } });
+        if(search){
+            const courseSerached = await Course.findAll({
+                where: {
+                    title: {
+                        [Op.like]: `%${search}%`
+                    },
+                    is_deleted: false 
+                }
+            })
+            res.status(200).json(courseSerached)
+        }
+        else if(type && status){
+            const courses = await Course.findAll({
+                where: {
+                    is_deleted: false,
+                    type,
+                    status,
+                },
+            });
+            res.status(200).json(courses);
+        }
+        else if(type === 0 && status){
+            const courses = await Course.findAll({
+                where: {
+                    is_deleted: false,
+                    status,
+                },
+            });
+            res.status(200).json(courses);
+        }
+        else if(type && status === 0){
+            const courses = await Course.findAll({
+                where: {
+                    is_deleted: false,
+                    type,
+                },
+            });
+            res.status(200).json(courses);
+        }
+        else if(type === 0 && status === 0){
+            const courses = await Course.findAll({
+                where: {
+                    is_deleted: false,
+                },
+            });
+            res.status(200).json(courses);
+        }
+        else{
+        const courses = await Course.findAll({
+            where: {
+                is_deleted: false,
+
+            },
+        });
         res.status(200).json(courses);
+    }
     } catch (e) {
         res.status(400).json(e);
     }
