@@ -21,6 +21,7 @@ db.Transaction = require('./tranaction.model')(sequelize,Sequelize)
 db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
 db.Payment = require('./payment.model')(sequelize,Sequelize)
 db.Token = require('./token.model')(sequelize,Sequelize)
+db.Site = require('./siteconfig.model')(sequelize,Sequelize)
 
 // User.hasMany(Invoice);
 // Invoice.belongsTo(User);
