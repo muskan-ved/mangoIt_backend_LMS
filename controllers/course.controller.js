@@ -59,12 +59,10 @@ exports.getCourses = async (req, res) => {
             });
             res.status(200).json(combinedArray);
         }
-        else if (type && status) {
+        else if (type === 0 && status === 0) {
             const courses = await Course.findAll({
                 where: {
                     is_deleted: false,
-                    type,
-                    status,
                 },
             });
             const moduleCounts = await Module.findAll({
@@ -186,10 +184,12 @@ exports.getCourses = async (req, res) => {
             });
             res.status(200).json(combinedArray);
         }
-        else if (type === 0 && status === 0) {
+        else if (type && status) {
             const courses = await Course.findAll({
                 where: {
                     is_deleted: false,
+                    type,
+                    status,
                 },
             });
             const moduleCounts = await Module.findAll({
