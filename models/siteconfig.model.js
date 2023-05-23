@@ -13,12 +13,18 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 unique: true,
             },
-            key: {
+            title: {
                 type: DataTypes.STRING,
+                allowNull: false,
             },
             
-            value: {
+            org_logo: {
                 type: DataTypes.STRING,
+                allowNull: false,
+            },
+            org_favicon: {
+                type: DataTypes.STRING,
+                allowNull: false,
             },
             user_id: {
                 type: DataTypes.INTEGER,
@@ -43,7 +49,11 @@ module.exports = (sequelize, DataTypes) => {
             modelName: 'site-options'
         }
     )
-
+    // sequelize.sync( {  alter: true } ).then(() => {
+    //     console.log(' table alter successfully!');
+    //   }).catch((error) => {
+    //     console.error('Unable to create table : ', error);
+    //   })
 
     return Site
 }
