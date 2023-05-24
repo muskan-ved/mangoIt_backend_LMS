@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
             },
             is_chargeable: {
-                type: DataTypes.BOOLEAN,  
+                type: DataTypes.STRING, 
             },
             created_by: {
                 type: DataTypes.INTEGER,
