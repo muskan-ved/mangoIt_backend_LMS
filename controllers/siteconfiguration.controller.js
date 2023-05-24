@@ -71,9 +71,9 @@ exports.createSiteConfig = async (req, res) => {
         org_favicon,
         created_by: login_user,
       });
-      res.json(site_Create);
+      res.status(201).json(site_Create);
     } else {
-      res.status(201).json({ message: "User already inserted site configurations" });
+      res.status(404).json({ message: "User already inserted site configurations" });
     }
   } catch (e) {
     res.status(400).json(e);
