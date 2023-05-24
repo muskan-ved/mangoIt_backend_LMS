@@ -15,16 +15,15 @@ module.exports = (sequelize, DataTypes) => {
             },
             title: {
                 type: DataTypes.STRING,
-                allowNull: false,
-            },
-            
+                defaultValue: '',
+            },  
             org_logo: {
                 type: DataTypes.STRING,
-                allowNull: false,
+                defaultValue: '',
             },
             org_favicon: {
                 type: DataTypes.STRING,
-                allowNull: false,
+                defaultValue: '',
             },
             user_id: {
                 type: DataTypes.INTEGER,
@@ -50,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     )
     // sequelize.sync( {  alter: true } ).then(() => {
-    //     console.log(' table alter successfully!');
+    //     console.log(' site table alter successfully!');
     //   }).catch((error) => {
     //     console.error('Unable to create table : ', error);
     //   })

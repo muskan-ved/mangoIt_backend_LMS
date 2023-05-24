@@ -5,8 +5,22 @@ const Site = db.Site;
 const User = db.User;
 
 exports.getAllSiteConfig = async (req, res) => {
+    const Sequelize = require('sequelize');
+    const Op = Sequelize.Op;
+    const search = req.params.search;
+    
   try {
-    const allSiteConfig = await Site.findAll({ where: { is_deleted: false } });
+    let allSiteConfig;
+    if (search) {
+     allSiteConfig = await Site.findAll({ where: {
+        title: {
+            [Op.like]: `%${search}%`
+        },
+        is_deleted: false,
+    }, });
+}else{
+    allSiteConfig = await Site.findAll({ where: {    is_deleted: false,  }, });  
+}
     res.status(200).json(allSiteConfig);
   } catch (e) {
     res.status(400).json(e);
@@ -32,31 +46,34 @@ exports.getSiteConfigById = async (req, res) => {
 };
 
 exports.createSiteConfig = async (req, res) => {
-  const { key, value } = req.body;
+  const {title } = req.body;
 
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   const login_user = decode.id;
-console.log(req.file,"$4444444444444444",req.body)
-//   let attachment_file;
-//   if (req.file) {
-//     attachment_file = req.file.path;
-//   }
+
+  let org_logo,org_favicon;
+
+  if (req.files !== null) {
+    org_logo = req?.files?.org_logo && req?.files?.org_logo[0].path;
+    org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
+  }
 
   try {
     const findUser = await User.findOne({ where: { id: login_user } });
 
-    if (findUser.role_id == 1) {
+    if (!findUser) {
       //Admin user
       const site_Create = await Site.create({
         user_id: login_user,
-        key: key,
-        value: value,
+        title,
+        org_logo,
+        org_favicon,
         created_by: login_user,
       });
       res.json(site_Create);
     } else {
-      res.json({ message: "Only admins can create" });
+      res.status(201).json({ message: "User already inserted site configurations" });
     }
   } catch (e) {
     res.status(400).json(e);
@@ -67,10 +84,16 @@ exports.updateSiteConfig = async (req, res) => {
   const siteId = req.params.id;
 
   const {
-    user_id: user_id,
-   key,
-   value
+    title
   } = req.body;
+
+  let org_logo,org_favicon;
+
+  if (req.files !== null) {
+    org_logo = req?.files?.org_logo && req?.files?.org_logo[0].path;
+    org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
+    
+  }
 
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -79,16 +102,17 @@ exports.updateSiteConfig = async (req, res) => {
   try {
     const siteUpdate = await Site.update(
       {
-        user_id: user_id,
-        key:key,
-        value:value,
+        user_id: updated_by,
+        title,
+        org_logo,
+        org_favicon,
         updated_by: updated_by,
       },
       { where: { id: siteId } }
     );
 
     const newUpdateSiteConfig = await Site.findOne({ where: { id: siteId } });
-    res.json(newUpdateSiteConfig);
+    res.status(201).json(newUpdateSiteConfig);
   } catch (e) {
     res.status(400).json(e);
   }
@@ -111,7 +135,7 @@ exports.deleteSiteConfig = async (req, res) => {
     );
 
     const siteConfigDeleted = await Site.findOne({ where: { id: siteId } });
-    res.json(siteConfigDeleted);
+    res.status(200).json(siteConfigDeleted);
   } catch (e) {
     res.status(400).json(e);
   }
