@@ -6,7 +6,6 @@ const Module = db.Module
 const Session = db.Session
 
 exports.getCourses = async (req, res) => {
-    // res.send('All cousres');
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const search = req.params.search;
@@ -14,7 +13,7 @@ exports.getCourses = async (req, res) => {
         type,
         status
     } = req.body
-    // console.log(type,status,"444444444444444444444")
+
     try {
         if (search) {
             const courses = await Course.findAll({
@@ -60,182 +59,15 @@ exports.getCourses = async (req, res) => {
             });
             res.status(200).json(combinedArray);
         }
-        // else if (type == 0 && status == 0) {
-        //     const courses = await Course.findAll({
-        //         where: {
-        //             is_deleted: false,
-        //         },
-        //     });
-        //     const moduleCounts = await Module.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'moduleCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const moduleCountsMap = new Map();
-        //     moduleCounts.forEach((count) => {
-        //         moduleCountsMap.set(count.course_id, count.moduleCount);
-        //     });
-
-        //     const sessionCounts = await Session.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'sessionCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const sessionCountsMap = new Map();
-        //     sessionCounts.forEach((count) => {
-        //         sessionCountsMap.set(count.course_id, count.sessionCount);
-        //     });
-
-        //     const combinedArray = courses.map((course) => {
-        //         const sessionCount = sessionCounts.filter((count) => count.course_id !== course.id ? count.sessionCount : { "sessionCount": 0 })
-        //         const moduleCount = moduleCounts.filter((count) => count.course_id !== course.id ? count.moduleCount : { "moduleCount": 0 })
-        //         return {
-        //             course,
-        //             sessionCount: sessionCount,
-        //             moduleCount: moduleCount,
-        //         };
-        //     });
-        //     res.status(200).json(combinedArray);
-        // }
-        // else if (type === 0 && status) {
-        //     const courses = await Course.findAll({
-        //         where: {
-        //             is_deleted: false,
-        //             status,
-        //         },
-        //     });
-        //     const moduleCounts = await Module.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'moduleCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const moduleCountsMap = new Map();
-        //     moduleCounts.forEach((count) => {
-        //         moduleCountsMap.set(count.course_id, count.moduleCount);
-        //     });
-
-        //     const sessionCounts = await Session.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'sessionCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const sessionCountsMap = new Map();
-        //     sessionCounts.forEach((count) => {
-        //         sessionCountsMap.set(count.course_id, count.sessionCount);
-        //     });
-
-        //     const combinedArray = courses.map((course) => {
-        //         const sessionCount = sessionCounts.filter((count) => count.course_id !== course.id ? count.sessionCount : { "sessionCount": 0 })
-        //         const moduleCount = moduleCounts.filter((count) => count.course_id !== course.id ? count.moduleCount : { "moduleCount": 0 })
-        //         return {
-        //             course,
-        //             sessionCount: sessionCount,
-        //             moduleCount: moduleCount,
-        //         };
-        //     });
-        //     res.status(200).json(combinedArray);
-        // }
-        // else if (type && status === 0) {
-        //     const courses = await Course.findAll({
-        //         where: {
-        //             is_deleted: false,
-        //             type
-        //         },
-        //     });
-        //     const moduleCounts = await Module.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'moduleCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const moduleCountsMap = new Map();
-        //     moduleCounts.forEach((count) => {
-        //         moduleCountsMap.set(count.course_id, count.moduleCount);
-        //     });
-
-        //     const sessionCounts = await Session.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'sessionCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const sessionCountsMap = new Map();
-        //     sessionCounts.forEach((count) => {
-        //         sessionCountsMap.set(count.course_id, count.sessionCount);
-        //     });
-
-        //     const combinedArray = courses.map((course) => {
-        //         const sessionCount = sessionCounts.filter((count) => count.course_id !== course.id ? count.sessionCount : { "sessionCount": 0 })
-        //         const moduleCount = moduleCounts.filter((count) => count.course_id !== course.id ? count.moduleCount : { "moduleCount": 0 })
-        //         return {
-        //             course,
-        //             sessionCount: sessionCount,
-        //             moduleCount: moduleCount,
-        //         };
-        //     });
-        //     res.status(200).json(combinedArray);
-        // }
-        // else if ((type !== null && status !== null )||(type !== undefined && status !== undefined)) {
-
-        //     const courses = await Course.findAll({
-        //         where: {
-        //             is_deleted: false,
-        //             is_chargeable:type,
-        //             status,
-        //         },
-        //     });
-        //     console.log(courses,"courses")
-        //     const moduleCounts = await Module.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'moduleCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const moduleCountsMap = new Map();
-        //     moduleCounts.forEach((count) => {
-        //         moduleCountsMap.set(count.course_id, count.moduleCount);
-        //     });
-
-        //     const sessionCounts = await Session.findAll({
-        //         attributes: [
-        //             'course_id',
-        //             [Sequelize.fn('COUNT', Sequelize.col('course_id')), 'sessionCount']
-        //         ],
-        //         group: ['course_id']
-        //     });
-        //     const sessionCountsMap = new Map();
-        //     sessionCounts.forEach((count) => {
-        //         sessionCountsMap.set(count.course_id, count.sessionCount);
-        //     });
-
-        //     const combinedArray = courses.map((course) => {
-        //         const sessionCount = sessionCounts.filter((count) => count.course_id !== course.id ? count.sessionCount : { "sessionCount": 0 })
-        //         const moduleCount = moduleCounts.filter((count) => count.course_id !== course.id ? count.moduleCount : { "moduleCount": 0 })
-        //         return {
-        //             course,
-        //             sessionCount: sessionCount,
-        //             moduleCount: moduleCount,
-        //         };
-        //     });
-        //     res.status(200).json(combinedArray);
-        // }
-        else {
+        else if ((type !== null && status !== null) || (type !== undefined && status !== undefined)) {
             const courses = await Course.findAll({
                 where: {
                     is_deleted: false,
+                    is_chargeable: type,
+                    status,
                 },
             });
+            console.log(courses, "courses")
             const moduleCounts = await Module.findAll({
                 attributes: [
                     'course_id',
