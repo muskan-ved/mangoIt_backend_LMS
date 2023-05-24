@@ -324,7 +324,6 @@ exports.createCourse = async (req, res) => {
         is_chargeable } = req.body
 
     const token = req.headers.logintoken
-
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
     const user_id = decode.id
 
