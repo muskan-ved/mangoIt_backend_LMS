@@ -28,30 +28,29 @@ exports.getAllSiteConfig = async (req, res) => {
 };
 
 exports.getSiteConfigById = async (req, res) => {
-  const siteId = req.params.id;
+  const userId = req.params.id;
+  console.log(userId,"4444443 id")
   try {
     const siteById = await Site.findOne({
-      where: { id: siteId, is_deleted: false },
+      where: { user_id: userId, is_deleted: false },
     });
 
-    if (siteById) {
+
       res.status(200).json(siteById);
-    }
-    if (!siteById) {
-      res.status(404).json("Id not Found!");
-    }
+   
   } catch (e) {
     res.status(400).json(e);
   }
 };
 
 exports.createSiteConfig = async (req, res) => {
-  const {title } = req.body;
-
+ 
+console.log(req.files,"valeue",req.body,typeof req.body.data);
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   const login_user = decode.id;
 
+  const dataFormatted = []
   let org_logo,org_favicon;
 
   if (req.files !== null) {
@@ -59,59 +58,69 @@ exports.createSiteConfig = async (req, res) => {
     org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
   }
 
-  try {
-    const findUser = await User.findOne({ where: { id: login_user } });
-
-    if (!findUser) {
-      //Admin user
-      const site_Create = await Site.create({
-        user_id: login_user,
-        title,
-        org_logo,
-        org_favicon,
-        created_by: login_user,
-      });
-      res.status(201).json(site_Create);
-    } else {
-      res.status(404).json({ message: "User already inserted site configurations" });
-    }
-  } catch (e) {
-    res.status(400).json(e);
+  for (let index = 0; index < 3; index++) {
+    console.log(req?.body[index],"[index]")
+    // const element = array[index];
   }
+
+
+
+
+  // try {
+  //   // const findUser = await Site.findOne({ where: { user_id: login_user } });
+
+  //   // if (!findUser) {
+  //     //Admin user
+  //     const site_Create = await Site.create({
+  //       user_id: login_user,
+  //       key,
+  //       value,
+  //       // org_favicon,
+  //       created_by: login_user,
+  //     });
+      res.status(201).json('ok');
+  //   // } else {
+  //   //   res.status(400).json({ message: "User already inserted site configurations" });
+  //   // }
+  // } catch (e) {
+  //   res.status(400).json(e);
+  // }
 };
 
 exports.updateSiteConfig = async (req, res) => {
   const siteId = req.params.id;
+  console.log(siteId,"site Id",req.files)
 
   const {
     title
   } = req.body;
 
-  let org_logo,org_favicon;
+  let org_logoo,org_favicoon;
 
   if (req.files !== null) {
-    org_logo = req?.files?.org_logo && req?.files?.org_logo[0].path;
-    org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
-    
+    org_logoo = req?.files?.org_logo && req?.files?.org_logo[0].path;
+    org_favicoon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
   }
 
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   const updated_by = decode.id;
 
+console.log(org_logoo,org_favicoon,"orglggo",updated_by)
   try {
     const siteUpdate = await Site.update(
       {
-        user_id: updated_by,
         title,
-        org_logo,
-        org_favicon,
+        org_logo:org_logoo,
+        org_favicon:org_favicoon,
+        user_id: updated_by,
         updated_by: updated_by,
       },
       { where: { id: siteId } }
     );
 
     const newUpdateSiteConfig = await Site.findOne({ where: { id: siteId } });
+    console.log(newUpdateSiteConfig,siteUpdate,"333333333333333333")
     res.status(201).json(newUpdateSiteConfig);
   } catch (e) {
     res.status(400).json(e);
