@@ -153,7 +153,7 @@ exports.createCourse = async (req, res) => {
         long_description,
         short_description,
         status,
-        is_chargeable } = req.body
+        type } = req.body
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
@@ -167,7 +167,7 @@ exports.createCourse = async (req, res) => {
             short_description,
             long_description,
             status,
-            is_chargeable,
+            is_chargeable : type,
             // trailer_url,          
             user_id,
             created_by: user_id,
@@ -178,7 +178,6 @@ exports.createCourse = async (req, res) => {
     } catch (e) {
         res.status(400).send(e)
     }
-
 }
 
 
@@ -188,7 +187,7 @@ exports.updateCourse = async (req, res) => {
         long_description,
         short_description,
         status,
-        is_chargeable } = req.body
+        type } = req.body
 
     const courseId = req.params.id
 
@@ -203,7 +202,7 @@ exports.updateCourse = async (req, res) => {
             short_description,
             long_description,
             status,
-            is_chargeable,
+            is_chargeable : type,
             user_id,
             updated_by: user_id,
         }, { where: { id: courseId } })
