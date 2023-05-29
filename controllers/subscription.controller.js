@@ -4,7 +4,16 @@ const jsonwebtoken = require("jsonwebtoken");
 const Subscription = db.Subscription;
 
 exports.createSubcsription = async (req, res) => {
-  const { name, description, price, duration_term, duration_value } = req.body;
+  const {
+    name,
+    description,
+    price,
+    userId,
+    startDate,
+    status,
+    duration_term,
+    duration_value,
+  } = req.body;
 
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -16,6 +25,10 @@ exports.createSubcsription = async (req, res) => {
       description: description,
       price: price,
       duration_term: duration_term,
+      user_id: userId,
+      start_date: startDate,
+      // next_pay_date:nextPay,
+      status: status,
       duration_value: duration_value,
       created_by: created_by,
     });
@@ -85,14 +98,33 @@ exports.getAllSubscription = async (req, res) => {
     res.status(400).json(e);
   }
 };
+exports.getSubscriptionByUserId = async (req, res) => {
+  // res.send("all session");
+  const subsId = req.params.id;
+  try {
+    const subsById = await Subscription.findAll({
+      where: { user_id: subsId },
+    });
+    console.log("subsById", subsById);
+    if (subsById) {
+      res.status(200).json(subsById);
+    }
+    if (!subsById) {
+      res.status(404).json("subsId not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
 exports.getSubscriptionById = async (req, res) => {
   // res.send("all session");
   const subsId = req.params.id;
   try {
     const subsById = await Subscription.findOne({
-      where: { id: subsId},
+      where: { id: subsId },
     });
-console.log('subsById',subsById);
+    console.log("subsById", subsById);
     if (subsById) {
       res.status(200).json(subsById);
     }

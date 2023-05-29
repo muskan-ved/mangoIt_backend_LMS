@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
             name: {
                 type: DataTypes.STRING,
             },
+            user_id:{
+                type: DataTypes.INTEGER,
+            },
             description: {
                 type: DataTypes.STRING,
             },
@@ -27,6 +30,12 @@ module.exports = (sequelize, DataTypes) => {
             },
             duration_value: {
                 type: DataTypes.INTEGER,
+            },
+            status: {
+                type: DataTypes.STRING,
+            },
+            start_date: {
+                type: DataTypes.STRING,
             },
             created_by: {
                 type: DataTypes.STRING,
