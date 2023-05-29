@@ -4,13 +4,13 @@ const { getAllSiteConfig, getSiteConfigById, createSiteConfig, updateSiteConfig,
 const router = express.Router()
 const {upload} = require('../helper/upload')
 
-router.get('/getsiteconfigs/:search?', webProtection, getAllSiteConfig)
+router.post('/getsiteconfigs/:search?', webProtection, getAllSiteConfig)
 router.get('/getsiteconfigs/:id', webProtection, getSiteConfigById)
 router.post('/createsiteconfig', webProtection ,upload.fields([
     { name: 'org_logo' },
     { name: 'org_favicon'},
   ]), createSiteConfig)
-router.put('/updatesiteconfigs/:id',webProtection,upload.fields([
+router.put('/updatesiteconfigs',webProtection,upload.fields([
     { name: 'org_logo' },
     { name: 'org_favicon'},
   ]), updateSiteConfig)

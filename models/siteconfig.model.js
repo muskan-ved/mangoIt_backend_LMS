@@ -13,15 +13,11 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 unique: true,
             },
-            title: {
-                type: DataTypes.STRING,
-                defaultValue: '',
-            },  
-            org_logo: {
+            key: {
                 type: DataTypes.STRING,
                 defaultValue: '',
             },
-            org_favicon: {
+            value: {
                 type: DataTypes.STRING,
                 defaultValue: '',
             },
