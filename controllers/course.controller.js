@@ -10,7 +10,7 @@ exports.getCourses = async (req, res) => {
     const Op = Sequelize.Op;
     const search = req.params.search;
     const {
-        type,
+        is_chargeable,
         status
     } = req.body
 
@@ -59,11 +59,11 @@ exports.getCourses = async (req, res) => {
             });
             res.status(200).json(combinedArray);
         }
-        else if ((type !== null && status !== null) || (type !== undefined && status !== undefined)) {
+        else if ((is_chargeable !== null && status !== null) || (is_chargeable !== undefined && status !== undefined)) {
             const courses = await Course.findAll({
                 where: {
                     is_deleted: false,
-                    is_chargeable: type,
+                    is_chargeable,
                     status,
                 },
             });
@@ -153,7 +153,7 @@ exports.createCourse = async (req, res) => {
         long_description,
         short_description,
         status,
-        type } = req.body
+        is_chargeable } = req.body
 
     const token = req.headers.logintoken
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY)
@@ -167,7 +167,7 @@ exports.createCourse = async (req, res) => {
             short_description,
             long_description,
             status,
-            is_chargeable : type,
+            is_chargeable,
             // trailer_url,          
             user_id,
             created_by: user_id,
@@ -187,7 +187,7 @@ exports.updateCourse = async (req, res) => {
         long_description,
         short_description,
         status,
-        type } = req.body
+        is_chargeable } = req.body
 
     const courseId = req.params.id
 
@@ -202,7 +202,7 @@ exports.updateCourse = async (req, res) => {
             short_description,
             long_description,
             status,
-            is_chargeable : type,
+            is_chargeable,
             user_id,
             updated_by: user_id,
         }, { where: { id: courseId } })
