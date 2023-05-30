@@ -6,7 +6,7 @@ const {upload} = require('../helper/upload')
 
 router.post("/getcourse/:search?", webProtection, getCourses)
 router.get("/getcourse/:id",webProtection, getCourseById)
-router.get("/getcoursebysearch/:search", webProtection, getCourseBySearch)
+// router.get("/getcoursebysearch/:search", webProtection, getCourseBySearch)
 router.post('/createcourse', webProtection, upload.single("audio_video_trailer") , createCourse)
 router.put('/updatecourse/:id', webProtection, upload.single("audio_video_trailer") , updateCourse)
 router.delete('/deletecourse/:id', webProtection ,deleteCourse)

@@ -13,6 +13,7 @@ const transactionRoutes = require('./routes/transaction.router')
 const enrollcourseRouter = require('./routes/enrollcourse.router')
 const paymentRouter = require('./routes/payment.router')
 const siteRouter = require('./routes/siteConfig.router')
+const emailRouter = require('./routes/emailManage.router')
 
 const app = express()
 const port = process.env.PORT
@@ -33,6 +34,7 @@ app.use(transactionRoutes)
 app.use(enrollcourseRouter)
 app.use(paymentRouter)
 app.use(siteRouter)
+app.use(emailRouter)
 
 app.listen(port, ()=>{
     console.log(`Server Connected Successfully at ${port}`)
