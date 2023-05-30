@@ -15,11 +15,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             key: {
                 type: DataTypes.STRING,
-                defaultValue: '',
+                allowNull: true
             },
             value: {
                 type: DataTypes.STRING,
-                defaultValue: '',
+                allowNull: true
             },
             user_id: {
                 type: DataTypes.INTEGER,

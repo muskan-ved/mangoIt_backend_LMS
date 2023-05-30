@@ -31,7 +31,6 @@ exports.getAllSiteConfig = async (req, res) => {
 
 exports.getSiteConfigById = async (req, res) => {
   const userId = req.params.id;
-  console.log(userId, "4444443 id");
   try {
     const siteById = await Site.findAll({
       where: { user_id: userId, is_deleted: false },
@@ -44,23 +43,30 @@ exports.getSiteConfigById = async (req, res) => {
 };
 
 exports.createSiteConfig = async (req, res) => {
-
-  let org_logo, org_favicon, site_Create;
+  let org_logo, org_favicon, site_Create, obj;
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   const login_user = decode.id;
-
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
 
   if (req.files !== null) {
     org_logo = req?.files?.org_logo && req?.files?.org_logo[0].path;
     org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
   }
 
-  const obj = {
-    title: req.body.title,
-    org_logo: org_logo,
-    org_favicon: org_favicon,
-  };
+  if (req.body.title || req?.files?.org_logo || req?.files?.org_favicon) {
+    obj = {
+      title: req.body.title,
+      org_logo: org_logo,
+      org_favicon: org_favicon,
+    };
+  } else {
+    obj = {
+      org_pk: req.body.org_pk,
+      org_sk: req.body.org_sk,
+    };
+  }
 
   const arrayOfObjects = Object.entries(obj).map(([key, value]) => ({
     key,
@@ -68,10 +74,16 @@ exports.createSiteConfig = async (req, res) => {
   }));
 
   try {
-    const findUser = await Site.findOne({ where: { user_id: login_user } });
-    if (!findUser) {
+    const findUser = await Site.findAll({
+      where: {
+        key: {
+          [Op.or]: ["title", "org_logo", "org_favicon", "org_pk", "org_sk"],
+        },
+        user_id: login_user,
+      },
+    });
+    if (findUser.length === 0 || findUser.length < 5) {
       for (let index = 0; index < arrayOfObjects.length; index++) {
-        console.log(arrayOfObjects[index], "[index]");
         site_Create = await Site.create({
           user_id: login_user,
           key: arrayOfObjects[index].key,
@@ -91,18 +103,25 @@ exports.createSiteConfig = async (req, res) => {
 };
 
 exports.updateSiteConfig = async (req, res) => {
-  let org_logo, org_favicon;
+  let org_logo, org_favicon, obj;
 
   if (req.files !== null) {
     org_logo = req?.files?.org_logo && req?.files?.org_logo[0].path;
     org_favicon = req?.files?.org_favicon && req?.files?.org_favicon[0].path;
   }
 
-  const obj = {
-    title: req.body.title,
-    org_logo: org_logo,
-    org_favicon: org_favicon,
-  };
+  if (req.body.title || req?.files?.org_logo || req?.files?.org_favicon) {
+    obj = {
+      title: req.body.title,
+      org_logo: org_logo,
+      org_favicon: org_favicon,
+    };
+  } else {
+    obj = {
+      org_pk: req.body.org_pk,
+      org_sk: req.body.org_sk,
+    };
+  }
 
   const arrayOfObjects = Object.entries(obj).map(([key, value]) => ({
     key,
@@ -112,33 +131,32 @@ exports.updateSiteConfig = async (req, res) => {
   const token = req.headers.logintoken;
   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   const updated_by = decode.id;
-  
+
   try {
     for (let index = 0; index < arrayOfObjects.length; index++) {
-     
       const siteOption = await Site.findOne({
         where: { key: arrayOfObjects[index].key },
-        attributes: ['id']
+        attributes: ["id"],
       });
-console.log(siteOption,"site option")
       if (siteOption) {
         const siteId = siteOption.id;
 
-     await Site.update(
-      {
-        key: arrayOfObjects[index].key,
-        value: arrayOfObjects[index].value,
-        user_id: updated_by,
-        updated_by: updated_by,
-      },
-      { where: { id: siteId } }
-    );
-    }else {
-      console.log(`Site-option with key ${key} not found.`);
+        await Site.update(
+          {
+            key: arrayOfObjects[index].key,
+            value: arrayOfObjects[index].value,
+            user_id: updated_by,
+            updated_by: updated_by,
+          },
+          { where: { id: siteId } }
+        );
+      } else {
+        console.log(`Site-option with key ${key} not found.`);
+      }
     }
-  
-  }
-    const newUpdateSiteConfig = await Site.findAll({ where: { user_id: updated_by ,is_deleted: false} });
+    const newUpdateSiteConfig = await Site.findAll({
+      where: { user_id: updated_by, is_deleted: false },
+    });
     res.status(201).json(newUpdateSiteConfig);
   } catch (e) {
     res.status(400).json(e);
