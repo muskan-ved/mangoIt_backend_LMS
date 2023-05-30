@@ -2,7 +2,6 @@ const db = require("../models/index.model");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Site = db.Site;
-const User = db.User;
 
 exports.getAllSiteConfig = async (req, res) => {
   const Sequelize = require("sequelize");
