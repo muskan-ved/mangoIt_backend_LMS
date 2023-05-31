@@ -17,11 +17,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true
             },
-            replytoname: {
-                type: DataTypes.STRING,
-                allowNull: true
-            },
-            replytoemail: {
+            emailfrom: {
                 type: DataTypes.STRING,
                 allowNull: true
             },
