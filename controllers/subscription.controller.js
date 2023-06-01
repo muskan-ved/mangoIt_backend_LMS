@@ -135,3 +135,53 @@ exports.getSubscriptionById = async (req, res) => {
     res.status(400).json(e);
   }
 };
+
+exports.getSubscriptionSearchByUserId = async (req, res) => {
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
+  const search = req.params.search;
+  const userId = req.body.id;
+  const subsId = req.params.id;
+  try {
+    if (search) {
+      const subscription = await Subscription.findAll({
+        where: {
+          user_id: userId,
+          name: {
+            [Op.like]: `%${search}%`,
+          },
+        },
+      });
+      res.status(200).json(subscription);
+    } else {
+      const subsById = await Subscription.findAll({
+        where: { user_id: subsId },
+      });
+      console.log("subsById", subsById);
+      if (subsById) {
+        res.status(200).json(subsById);
+      }
+      if (!subsById) {
+        res.status(404).json("subsId not Found!");
+      }
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.updateSubscriptionStatus = async (req, res) => {
+  const { status } = req.body;
+  const subscriptionId = req.params.id;
+
+  const updateSubscription = await Subscription.update(
+    {
+      status: status,
+    },
+    { where: { id: subscriptionId } }
+  );
+  const updatedSubscriptionValue = await Subscription.findOne({
+    where: { id: subscriptionId },
+  });
+  res.send(updatedSubscriptionValue);
+};
