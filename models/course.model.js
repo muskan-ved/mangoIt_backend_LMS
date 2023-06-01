@@ -23,9 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       short_description: {
         type: DataTypes.STRING,
       },
-      // trailer_url: {
-      //     type: DataTypes.STRING,
-      // },
       status: {
         type: DataTypes.STRING,
       },
