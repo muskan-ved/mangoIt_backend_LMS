@@ -55,7 +55,7 @@ exports.createEmailContent = async (req, res) => {
 };
 
 exports.updateEmailContent = async (req, res) => {
-  const { emailtype, emailfrom, emailsubject } =
+  const { emailtype, emailfrom, emailsubject, emailbodytext } =
     req.body;
 
   const token = req.headers.logintoken;
@@ -64,15 +64,16 @@ exports.updateEmailContent = async (req, res) => {
 
   try {
     const checkEmailManagementId = await EmailManage.findOne({
-      where: { id: req.params.id , emailtype}
+      where: { id: req.params.id }
     });
 
-    if (!checkEmailManagementId) {
+    if (checkEmailManagementId) {
       await EmailManage.update(
         {
           emailtype,
           emailfrom,
           emailsubject,
+          emailbodytext,
           user_id: updated_by,
           updated_by: updated_by,
         },
@@ -83,7 +84,7 @@ exports.updateEmailContent = async (req, res) => {
       });
       res.status(201).json(newUpdateEmailConfig);
     } else {
-      res.status(400).json({message:"Email type already exists"});
+      res.status(400).json({message:"Id not found"});
     }
 
   } catch (e) {
