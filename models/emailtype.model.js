@@ -1,11 +1,11 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-    class EmailManage extends Model {
+    class EmailType extends Model {
         static assocaite(model) { }
     }
 
-    EmailManage.init(
+    EmailType.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -13,24 +13,9 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 unique: true,
             },
-            emailtype: {
+            type: {
                 type: DataTypes.STRING,
                 allowNull: true
-            },
-            emailfrom: {
-                type: DataTypes.STRING,
-                allowNull: true
-            },
-            emailsubject: {
-                type: DataTypes.STRING,
-                allowNull: true
-            },
-            emailbodytext: {
-                type: DataTypes.STRING,
-                allowNull: true
-            },
-            user_id: {
-                type: DataTypes.INTEGER,
             },
             created_by: {
                 type: DataTypes.INTEGER,
@@ -43,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'email-manage'
+            modelName: 'email-type'
         }
     )
 
-    return EmailManage
+    return EmailType
 }

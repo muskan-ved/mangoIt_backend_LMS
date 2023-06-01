@@ -27,10 +27,27 @@ router.post(
 
 //subscription plans
 router.get("/subscriptionplans", webProtection, getSubscriptionPlans);
-router.get(
-  "/subscriptionplandetbyid/:id",
+router.get("/subscriptionplandetbyid/:id",
   webProtection,
   getSubscriptionPlansDetById
+ ) = require("../controllers/subscription.controller");
+
+
+router.post("/createsubscription", webProtection, createSubcsription);
+router.put("/updatesubscription/:id", webProtection, updateSubscription);
+router.put(
+  "/updatesubscriptionstatus/:id",
+  webProtection,
+  updateSubscriptionStatus
+);
+router.delete("/deletesubscription/:id", webProtection, deleteSubscription);
+router.get("/getsubscription", webProtection, getAllSubscription);
+router.get("/getsubscriptionbyid/:id", getSubscriptionById);
+router.get("/getsubscriptionbyuserid/:id", getSubscriptionByUserId);
+router.post(
+  "/getsubscriptionbyuserid/:search?",
+  webProtection,
+  getSubscriptionSearchByUserId
 );
 
 module.exports = router;

@@ -196,3 +196,19 @@ exports.getSubscriptionPlansDetById = async (req, res) => {
     res.status(400).json(e);
   }
 };
+
+exports.updateSubscriptionStatus = async (req, res) => {
+  const { status } = req.body;
+  const subscriptionId = req.params.id;
+
+  const updateSubscription = await Subscription.update(
+    {
+      status: status,
+    },
+    { where: { id: subscriptionId } }
+  );
+  const updatedSubscriptionValue = await Subscription.findOne({
+    where: { id: subscriptionId },
+  });
+  res.send(updatedSubscriptionValue);
+};

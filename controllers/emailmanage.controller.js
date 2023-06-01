@@ -8,7 +8,7 @@ exports.getAllEmailContent = async (req, res) => {
     emailContent;
   try {
     if (emailById) {
-      emailContent = await EmailManage.findOne({
+      emailContent = await EmailManage.findAll({
         where: { id: emailById },
       });
     } else {
@@ -17,12 +17,12 @@ exports.getAllEmailContent = async (req, res) => {
 
     res.status(200).json(emailContent);
   } catch (e) {
-    res.status(400).json(e);
+    res.status(400).json('Something went wrong');
   }
 };
 
 exports.createEmailContent = async (req, res) => {
-  const { emailtype, replytoname, replytoemail, emailsubject, emailbodytext } =
+  const { emailtype, emailfrom, emailsubject, emailbodytext } =
     req.body;
 
   const token = req.headers.logintoken;
@@ -31,15 +31,14 @@ exports.createEmailContent = async (req, res) => {
 
   try {
     const findUser = await EmailManage.findOne({
-      where: { user_id: login_user },
+      where: { emailtype: emailtype },
     });
 
     if (!findUser) {
       email_temp_create = await EmailManage.create({
         user_id: login_user,
         emailtype,
-        replytoname,
-        replytoemail,
+        emailfrom,
         emailsubject,
         emailbodytext,
         created_by: login_user,
@@ -48,7 +47,7 @@ exports.createEmailContent = async (req, res) => {
     } else {
       res
         .status(400)
-        .json({ message: "User already inserted email management" });
+        .json({ message: "Email type already exist" });
     }
   } catch (e) {
     res.status(400).json(e);
@@ -56,7 +55,7 @@ exports.createEmailContent = async (req, res) => {
 };
 
 exports.updateEmailContent = async (req, res) => {
-  const { emailtype, replytoname, replytoemail, emailsubject, emailbodytext } =
+  const { emailtype, emailfrom, emailsubject, emailbodytext } =
     req.body;
 
   const token = req.headers.logintoken;
@@ -65,15 +64,14 @@ exports.updateEmailContent = async (req, res) => {
 
   try {
     const checkEmailManagementId = await EmailManage.findOne({
-      where: { id: req.params.id },
+      where: { id: req.params.id }
     });
 
     if (checkEmailManagementId) {
       await EmailManage.update(
         {
           emailtype,
-          replytoname,
-          replytoemail,
+          emailfrom,
           emailsubject,
           emailbodytext,
           user_id: updated_by,
@@ -81,14 +79,14 @@ exports.updateEmailContent = async (req, res) => {
         },
         { where: { id: req.params.id } }
       );
+      const newUpdateEmailConfig = await EmailManage.findOne({
+        where: { id: req.params.id },
+      });
+      res.status(201).json(newUpdateEmailConfig);
     } else {
-      res.status(400).json("Email content id not found");
+      res.status(400).json({message:"Id not found"});
     }
 
-    const newUpdateEmailConfig = await EmailManage.findOne({
-      where: { id: req.params.id },
-    });
-    res.status(201).json(newUpdateEmailConfig);
   } catch (e) {
     res.status(400).json(e);
   }
