@@ -5,6 +5,7 @@ const stripe = Stripe(process.env.STRIPE_SECRETE_KEY);
 
 exports.AcceptPayment = async (req, res) => {
   //#####################  payment by Shubham ##########################################
+  const { productName, amount, quantity } = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -12,109 +13,37 @@ exports.AcceptPayment = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "T-shirt",
+              name: productName,
             },
-            unit_amount: 2000,
+            unit_amount: amount,
           },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "T-shirt",
-            },
-            unit_amount: 2000,
-          },
-          quantity: 1,
+          quantity: quantity,
         },
       ],
       mode: "payment",
-      success_url:
-        "https://mynodeherokuappproject.herokuapp.com/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: "https://example.com/cancel",
+      success_url: `${process.env.FRONTEND_URL}/paymentsuccess/{CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/paymentcancel`,
     });
     res.status(201).json({ returnurl: session.url });
   } catch (error) {
     console.log(error);
   }
+};
 
-  //#####################  payment by devendra ##########################################
-  // const token = req.headers.logintoken;
-  // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-  // const email = decode.email;
-  // const user_id = decode.id;
-  // const {
-  //   name,
-  //   description,
-  //   amount,
-  //   currency,
-  //   number,
-  //   exp_month,
-  //   exp_year,
-  //   cvc,
-  //   key,
-  // } = req.body;
-  // const idempotencyKey = uuidv4();
-  // try {
-  //   const createCustomer = await stripe.customers.create({
-  //     email: email,
-  //     name: name,
-  //   });
-  //   // res.json(createCustomer)
-  //   // generate card token ---------------------------------
-  //   if (createCustomer) {
-  //     const cardTokenGen = await stripe.tokens.create({
-  //       card: {
-  //         number,
-  //         exp_month,
-  //         exp_year,
-  //         cvc,
-  //       },
-  //     });
-  //     // console.log(cardTokenGen.card.exp_year)
-  //     if (cardTokenGen) {
-  //       // res.json(tokenData)
-  //       // create source to save card detail to stripe
-  //       const card = await stripe.customers.createSource(createCustomer.id, {
-  //         source: cardTokenGen.id,
-  //       });
-  //       if (card) {
-  //         try {
-  //           const customerPayment = await stripe.charges.create(
-  //             {
-  //               description: description,
-  //               amount: amount * 100,
-  //               currency: currency,
-  //               customer: createCustomer.id,
-  //             },
-  //             { idempotencyKey }
-  //           );
-  //           if (customerPayment) {
-  //             const createPayment = await Payment.create({
-  //               user_id: user_id,
-  //               token: cardTokenGen.id,
-  //             });
-  //             // console.log(createPayment.id)
-  //             if (createPayment) {
-  //               const tokenData = await Token.create({
-  //                 token_id: createPayment.id,
-  //                 key,
-  //                 value: cardTokenGen.card.exp_year,
-  //               });
-  //             }
-  //           }
-  //           res.json(customerPayment);
-  //         } catch (e) {
-  //           res.status(500).json(e);
-  //         }
-  //       }
-  //       // res.send(card)
-  //     }
-  //   }
-  // } catch (e) {
-  //   res.status(500).json(e);
-  // }
+exports.GetpaymentDetailsBycheckoutSessionIdPayment = async (req, res) => {
+  //#####################  payment by Shubham ##########################################
+  const { cs_test_key } = req.body;
+  try {
+    stripe.checkout.sessions.listLineItems(
+      cs_test_key,
+      { limit: 5 },
+      function (err, lineItems) {
+        res.status(201).json({ orderdetails: lineItems });
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // exports.getStripeCustomer = async (req, res) => {
