@@ -1,5 +1,6 @@
 const db = require("../models/index.model");
 require("dotenv").config;
+const fs = require("fs");
 const jsonwebtoken = require("jsonwebtoken");
 const Course = db.Course;
 const Module = db.Module;
@@ -293,5 +294,17 @@ exports.getCourseByIdConn = async (req, res) => {
     }
   } catch (e) {
     res.status(400).json(e);
+  }
+};
+
+exports.DownloadReceiptAfterPay = async (req, res) => {
+  const { imagename } = req.body;
+
+  if (imagename) {
+    var filePath = `${imagename}`;
+    fs.access(filePath, fs.constants.F_OK, async (err) => {
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    });
   }
 };
