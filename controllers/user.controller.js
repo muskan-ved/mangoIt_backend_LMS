@@ -10,6 +10,8 @@ const jsonwebtoken = require("jsonwebtoken");
 const db = require("../models/index.model");
 const { capitalizeFirstLetter } = require("../helper/help");
 const User = db.User;
+const EmailManage = db.EmailManage;
+
 
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
@@ -297,6 +299,15 @@ exports.sendGmail = async (req, res) => {
   const findUser = await User.findOne({
     where: { email: to, is_deleted: false },
   });
+
+  const findEmailSendingData = await EmailManage.findOne({
+    where: { emailtype: 'forgot_password'},
+  });
+
+   let result = findEmailSendingData.dataValues.emailbodytext.replace("{{username}}", `${capitalizeFirstLetter(findUser && findUser?.first_name)} ${findUser && findUser?.last_name
+          }`);
+
+  console.log(findEmailSendingData.dataValues,"33333",result,findUser)
   if (!findUser) {
     return res.status(400).json("this email is not register with us!");
   }
@@ -315,15 +326,8 @@ exports.sendGmail = async (req, res) => {
 
     try {
       // console.log(findUser,"44444444444444444444")
-      const { result, full } = await send({
-        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${findUser.last_name
-          },</p>
-        <p>There was a request to change your password!
-      <span>If you did not make this request then please ignore this email.</span></p>
-        <p>Otherwise, please click this link to change your password: <a href="
-        https://mangoit-lms.mangoitsol.com/resetpassword/"> Reset Pasword </a>
-       <span> <p>Thanks,</p>
-        <p>MangoIT Solutions</p></span>`,
+      const { full } = await send({
+        html: `${result}`,
         // files: [filepath],
       });
       const genToken = await generateToken({
