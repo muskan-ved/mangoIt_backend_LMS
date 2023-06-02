@@ -16,7 +16,6 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.User = require("./user.model")(sequelize, Sequelize);
-<<<<<<< HEAD
 db.Course = require("./course.model")(sequelize, Sequelize);
 db.Module = require("./module.model")(sequelize, Sequelize);
 db.Session = require("./session.model")(sequelize, Sequelize);
@@ -29,7 +28,6 @@ db.Token = require("./token.model")(sequelize, Sequelize);
 db.Site = require("./siteconfig.model")(sequelize, Sequelize);
 db.EmailManage = require("./emailmanage.model")(sequelize, Sequelize);
 db.subscriptionPlan = require("./subscriptionplan.model")(sequelize, Sequelize);
-=======
 db.Course = require('./course.model')(sequelize, Sequelize)
 db.Module = require('./module.model')(sequelize, Sequelize)
 db.Session = require('./session.model')(sequelize, Sequelize)
@@ -42,7 +40,6 @@ db.Token = require('./token.model')(sequelize,Sequelize)
 db.Site = require('./siteconfig.model')(sequelize,Sequelize)
 db.EmailManage = require('./emailmanage.model')(sequelize,Sequelize)
 db.EmailType = require('./emailtype.model')(sequelize,Sequelize)
->>>>>>> bb657cfeec930db3c4c04b5d56461e7cbda006f6
 
 // User.hasMany(Invoice);
 // Invoice.belongsTo(User);
