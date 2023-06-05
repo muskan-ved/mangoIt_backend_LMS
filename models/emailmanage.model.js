@@ -1,11 +1,11 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-    class Site extends Model {
+    class EmailManage extends Model {
         static assocaite(model) { }
     }
 
-    Site.init(
+    EmailManage.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -13,11 +13,19 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 unique: true,
             },
-            key: {
+            emailtype: {
                 type: DataTypes.STRING,
                 allowNull: true
             },
-            value: {
+            emailfrom: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            emailsubject: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            emailbodytext: {
                 type: DataTypes.STRING,
                 allowNull: true
             },
@@ -26,29 +34,18 @@ module.exports = (sequelize, DataTypes) => {
             },
             created_by: {
                 type: DataTypes.INTEGER,
+                allowNull: true
             },
             updated_by: {
                 type: DataTypes.INTEGER,
+                allowNull: true
             },
-            is_deleted: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
-            },
-            deleted_by: {
-                type: DataTypes.INTEGER,
-                defaultValue: 0,
-            }
         },
         {
             sequelize,
-            modelName: 'site-options'
+            modelName: 'email-manage'
         }
     )
-    // sequelize.sync( {  alter: true } ).then(() => {
-    //     console.log(' site table alter successfully!');
-    //   }).catch((error) => {
-    //     console.error('Unable to create table : ', error);
-    //   })
 
-    return Site
+    return EmailManage
 }

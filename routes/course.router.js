@@ -1,5 +1,5 @@
 const express = require('express')
-const {getCourses, getCourseById,getCourseBySearch, createCourse,updateCourse, deleteCourse } = require('../controllers/course.controller')
+const {getCourses, getCourseById,getCourseBySearch, createCourse,updateCourse, deleteCourse,getCourseByIdConn,DownloadReceiptAfterPay } = require('../controllers/course.controller')
 const {webProtection} = require('../helper/auth')
 const router = express.Router()
 const {upload} = require('../helper/upload')
@@ -10,6 +10,9 @@ router.get("/getcourse/:id",webProtection, getCourseById)
 router.post('/createcourse', webProtection, upload.single("audio_video_trailer") , createCourse)
 router.put('/updatecourse/:id', webProtection, upload.single("audio_video_trailer") , updateCourse)
 router.delete('/deletecourse/:id', webProtection ,deleteCourse)
+router.get("/get_course_by_id/:id", getCourseByIdConn)
+router.post("/downloadreceipt", DownloadReceiptAfterPay);
+
 
 
 module.exports = router

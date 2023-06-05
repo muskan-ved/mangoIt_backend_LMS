@@ -2,6 +2,7 @@ const db = require("../models/index.model");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Subscription = db.Subscription;
+const subscriptionPlan = db.subscriptionPlan;
 
 exports.createSubcsription = async (req, res) => {
   const {
@@ -134,4 +135,80 @@ exports.getSubscriptionById = async (req, res) => {
   } catch (e) {
     res.status(400).json(e);
   }
+};
+
+exports.getSubscriptionSearchByUserId = async (req, res) => {
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
+  const search = req.params.search;
+  const userId = req.body.id;
+  const subsId = req.params.id;
+  try {
+    if (search) {
+      const subscription = await Subscription.findAll({
+        where: {
+          user_id: userId,
+          name: {
+            [Op.like]: `%${search}%`,
+          },
+        },
+      });
+      res.status(200).json(subscription);
+    } else {
+      const subsById = await Subscription.findAll({
+        where: { user_id: subsId },
+      });
+      console.log("subsById", subsById);
+      if (subsById) {
+        res.status(200).json(subsById);
+      }
+      if (!subsById) {
+        res.status(404).json("subsId not Found!");
+      }
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getSubscriptionPlans = async (req, res) => {
+  const sequelize = require("sequelize");
+  try {
+    const users = await subscriptionPlan.findAll({});
+    res.status(200).json(users);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getSubscriptionPlansDetById = async (req, res) => {
+  try {
+    const subsById = await subscriptionPlan.findOne({
+      where: { id: req.params.id },
+    });
+    if (subsById) {
+      res.status(200).json(subsById);
+    }
+    if (!subsById) {
+      res.status(404).json("subsId not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.updateSubscriptionStatus = async (req, res) => {
+  const { status } = req.body;
+  const subscriptionId = req.params.id;
+
+  const updateSubscription = await Subscription.update(
+    {
+      status: status,
+    },
+    { where: { id: subscriptionId } }
+  );
+  const updatedSubscriptionValue = await Subscription.findOne({
+    where: { id: subscriptionId },
+  });
+  res.send(updatedSubscriptionValue);
 };
