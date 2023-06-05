@@ -1,0 +1,204 @@
+Objective: To provide an application which helps Learners with a blended learning experience for well-rounded, engaging training where educational content is presented in a variety of forms: Online Courses, videos etc.
+
+Purpose of the document: The main purpose of this document is to make you understand the modules that we are going to cover in the application.
+
+Module List for LMS:
+ Our LMS(Learning Management System) would initially cover two types of users namely:
+Admin
+Learner
+We have list down all the modules Role wise which we are planning to implement in our application:
+
+
+
+
+
+
+
+
+
+Admin:
+Login Page.
+User Management.
+Invoices.
+Courses:
+Modules(Create Modules)
+Classes(Create Classes/Sessions)
+Manage Subscriptions cost/Payment gateway integration
+
+Learners:
+Signup (Normal signup/ Sign up with Subscriptions)
+Login
+Manage Profile
+Courses: 
+(List of enrolled Courses)
+Attend Courses
+Invoices
+
+
+
+
+
+
+
+Admin
+The admin can login into the account by entering a valid id/pwd on the login screen.
+The Login screen should have a “forget password?” link in order to reset the password.
+Once the Admin is logged -in a dashboard will be displayed with different statistics based on Learners, courses purchased etc.
+A left menu bar should be displayed in the system. This menu bar consist of following items:
+Courses
+Add Courses
+Add Modules/Content
+Add Sessions
+User Management
+Invoices
+
+Courses: The Courses tab should be an expand/collapsible menu with the sub option “Course” & “ Modules”. Once the admin clicks on the tab:
+Can see the list of all created courses
+The admin should be redirected to a page where the admin can create Courses.
+The table will have search field
+Admin should be able to search the data based on filters Course Name
+There should be a sorting feature available on the table.
+A button named “Create Course” should be visible on top right corner
+When the admin clicks on the button “Create Course” a new window should open up with fields like
+Title: To add the title of the courses
+Description: Text field for adding a description over the course
+Visibility: An option to display/hide the course
+Chargeable: Radio buttons will be available namely: Free ←→ Paid.
+“Save” button at the bottom.
+When the admin clicks on “Save” A course will be added.
+All the Created courses will be displayed as a list in the table grid with an “Action” button to edit/delete the course & “View” in order to see the hierarchy of the Modules added under the courses.
+
+Module: When the admin clicks on the tab:
+A drop down should be visible on top Named as “Courses” (This will contain all the courses added in the system)
+When Selected any course in drop down the application should display the list of all created Modules Based on linked courses.
+All the modules will be displayed in a table format
+The table will have a search option in order to search a Module
+The table will have sorting option
+A button named “Add Module” should be visible on the top right corner.
+When the admin clicks on the button “Add Module” a new window should open up with fields like:
+Course: A drop down field to select the created courses (In Order to link the module with courses)
+Title: To add the title of the Module
+Description: A short description about the modules with 5000 character limit.
+“Save” button at the center bottom of the form.
+When the admin clicks on “Save” A Module will be added and displayed under the selected “Course”
+All the Created Modules will be displayed as a list in the table grid based on the selected courses with an “Action” button to edit/delete the Modules & “View” in order to see the hierarchy of the sessions added in the modules
+Session: When the admin clicks on the tab:
+A drop down should be visible on top Named as “Module” (This will contain all the Modules added in the system)
+When Selected any module in drop down the application should display the list of all created “Sessions” Based on linked “Modules”.
+All the sessions will be displayed in a table format
+The table will have a search option in order to search a session
+The table will have sorting option
+A button named “Add Session” should be visible on the top right corner.
+When the admin clicks on the button “Add Session” a new window should open up with fields like:
+Modules: A drop down field to select the created Modules (In Order to link the Sessions with Modules)
+Title: To add title of the session
+Description: A text field to enter a short description for the session with 5000 character limit.
+Uploads: Here the admin can upload the study material in Audio/ Video/ text formats
+“Save” button in bottom center
+When clicked on “Save” the session will be saved and listed under the Selected Module.
+All the Created Sessions will be displayed as a list in the table grid based on the selected module with an “Action” button to edit/delete the sessions.
+
+User management: From here the admin would be able to manage all the users enrolled in the system. When clicked on the tab:
+The admin can see the list of all users
+The Users will be displayed in a table in grid format
+The table will have search field
+Admin should be able to search the data based on filters name, email, status
+Status filter should have options like Active/Inactive
+The table will have columns like, Name| Email| Status| Subscribed| Edit| Delete |View(To see the enrolled courses)
+The page should have a “+ Add User” button.
+When clicked on the “+ Add User” Button, the admin will get redirected to a new form with fields like.
+Email Address: A text field to enter email
+Personal information: Name,Address etc
+Status (Active/Inactive)
+“Save” button
+When clicked on the “Save” button, The application will display a message “The user added successfully, A confirmation email has been sent to the user’s account” with this process of adding a user, an email containing a url to set a password will be triggered at the user's email account.
+The Added user will be displayed on the table.
+
+
+
+Invoices: When clicking on the tab, Admin gets redirected to a page where all the invoices are listed in the grid format with columns like:
+Sr.No | Invoice date/time| CustomerName| Course| Status| Amount| View(To see the Invoice details.) 
+Each column will have sorting options
+The table will have a search bar on top
+Admin should be able to search the data based on filters like Invoice id, name, Course, Status
+Status should have values like pending payment, processing, completed etc
+
+Learners:
+When opening the website with the url the learner sees the home page of the application
+Website should have Search field, Courses, Login/Sign up on the top right corner
+The Learner can sign up by entering the FirstName, LastName, Email, Password, Confirm password.
+Once the user enters all the necessary information and click on “Sign Up” the application will display a message “An email for confirmation has been sent to the email account” 
+An email will be triggered on the user’s email account.
+Once the user clicks on the link received in email. The user gets logged in and redirected to the My Account page.
+The learner can login into the account by entering a valid id/pwd on the login screen.
+The Login screen should have a “forget password?” link in order to reset the password.
+On entering valid email in the field the application will display a message stating “A reset password link is sent to the email account” .
+Once the learner is logged in the learner will be redirected to the My Account section.
+A menu bar will be displayed on top with tabs like:
+Home
+Search field: To search the courses, sessions etc
+Courses
+My Account 
+
+
+Home: The user clicks on the home tab and gets redirected to the home page. 
+This page will have website logo on top left corner in header
+This page will have all the tabs in header namely
+Search field
+Home
+Courses
+My account
+The page will have a detailed description of the website:
+Moto of the website
+About section
+This page will have a footer section with following:
+Contact us:
+Phone
+Email
+Follow us: Facebook, Twitter etc
+Copyright year
+
+Courses: When a user clicks on the tab the user is redirected to a page where all the courses are listed.
+The user can click on the courses and can see all the sessions videos/documentations listed beneath them.
+These courses can be free & paid.
+When clicked on any course (If Free) the user can watch & learn from the materials
+When clicked on any course (If Paid) then the user would be able to watch the trailer of the video.
+The details of the subscription should be visible to the user with all the benefits mentioned in the plan.
+This page will have a detailed description about the subscriptions based on courses, tenure, video quality etc and the “Subscribe” button on the top right corner
+Once the user clicks on “Subscribe” button the user can subscribe by performing checkout operations by making payments
+Once the payment is done, users now have access to all the videos/documentations based on the courses according to the subscription.
+The user can enroll in the Courses as per their requirement. They can watch videos, read documents and learn.
+
+Place Order: After selecting the subscription.  When the user clicks on the “Place order” button the user is then redirected to the payment gateway page where users can enter their essential details like CVV or OTPs.
+Once the payment is confirmed. The user will then receive a message of “Order placed successfully” with the invoice id.
+The confirmation page will have “Invoice id” and “continue” button
+If the user clicks on “Invoice id” The user will get redirected to the Invoice detail page
+If the user clicks on “Continue” then the user will get redirected to the home page and now can access anything on the website. 
+
+My Account: When logged in the user by default redirects to the My account section. This section consists of the following.
+Edit Profile: 
+When clicking on the tab the user will be redirected to the profile section for add/edit/update demographics details.
+ A “Save” button is available which when clicked, the details will get updated
+Payment methods:
+When clicking on the tab the user is redirected to the payment method page.
+The existing payment methods added on the application is listed 
+There’ll be a “Update Payment Method” button.
+When clicked on the button following field appears:
+Credit card number
+Expiration (mm/yy)
+Card Security Number
+Save
+Invoices:
+When clicking on the tab the user is redirected to the invoices page.
+Here all the invoices are listed in tabular format with following columns:
+Invoice Id
+Subscription name
+Invoice date
+Enrolled Sessions:
+When clicking on the tab, the user is redirected to the Enrolled courses page.
+Here all the Courses in which the user has enrolled will get listed in tabular format.
+The table will have following columns:
+Course Name
+Percentage completed
+View.
+

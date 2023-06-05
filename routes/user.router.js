@@ -4,7 +4,7 @@ const { getUsers,getUserById, updateUser, registration, loginUser,deleteUser, re
 const { webProtection } = require('../helper/auth')
 const router = express.Router()
 
-router.get('/getusers/:search?',webProtection, getUsers)
+router.post('/getusers/:search?',webProtection, getUsers)
 router.get('/getuser/:id',webProtection, getUserById)
 router.post('/registration', webProtection, registration)
 router.post('/loginuser', webProtection ,loginUser)
