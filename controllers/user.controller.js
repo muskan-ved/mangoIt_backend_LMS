@@ -14,6 +14,11 @@ const User = db.User;
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
   const search = req.params.search;
+  const {
+    role_id,
+    status
+} = req.body
+
   try {
     if (search) {
       const users = await User.findAll({
@@ -35,7 +40,36 @@ exports.getUsers = async (req, res) => {
         },
       });
       res.status(200).json(users);
-    } else {
+    }
+    else if(role_id == 0 &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status == 0){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else {
       const users = await User.findAll({ where: { is_deleted: false } });
       res.status(200).json(users);
     }
