@@ -36,6 +36,9 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 defaultValue:2,
             },
+            status : {
+                type: DataTypes.STRING,
+            },
             created_by: {
                 type: DataTypes.INTEGER,
             },

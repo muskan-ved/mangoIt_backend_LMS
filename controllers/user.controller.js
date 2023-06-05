@@ -241,7 +241,7 @@ exports.updateUser = async (req, res) => {
   }
 
   if (findUser) {
-    const { first_name, last_name, email, role_id } = req.body;
+    const { first_name, last_name, email, role_id,status } = req.body;
 
     const token = req.headers.logintoken;
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -256,6 +256,7 @@ exports.updateUser = async (req, res) => {
           first_name: first_name,
           last_name: last_name,
           role_id: role_id,
+          status,
           email: email,
           updated_by: updated_by,
           profile_pic: profile_pic,
