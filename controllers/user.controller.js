@@ -14,6 +14,11 @@ const User = db.User;
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
   const search = req.params.search;
+  const {
+    role_id,
+    status
+} = req.body
+
   try {
     if (search) {
       const users = await User.findAll({
@@ -35,7 +40,36 @@ exports.getUsers = async (req, res) => {
         },
       });
       res.status(200).json(users);
-    } else {
+    }
+    else if(role_id == 0 &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status == 0){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else {
       const users = await User.findAll({ where: { is_deleted: false } });
       res.status(200).json(users);
     }
@@ -239,7 +273,7 @@ exports.updateUser = async (req, res) => {
   }
 
   if (findUser) {
-    const { first_name, last_name, email, role_id } = req.body;
+    const { first_name, last_name, email, role_id,status } = req.body;
 
     const token = req.headers.logintoken;
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -254,6 +288,7 @@ exports.updateUser = async (req, res) => {
           first_name: first_name,
           last_name: last_name,
           role_id: role_id,
+          status,
           email: email,
           updated_by: updated_by,
           profile_pic: profile_pic,
