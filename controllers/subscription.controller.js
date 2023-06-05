@@ -16,9 +16,9 @@ exports.createSubcsription = async (req, res) => {
     duration_value,
   } = req.body;
 
-  const token = req.headers.logintoken;
-  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-  const created_by = decode.id;
+  // const token = req.headers.logintoken;
+  // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+  // const created_by = decode.id;
 
   try {
     const createSubscription = await Subscription.create({
@@ -31,7 +31,7 @@ exports.createSubcsription = async (req, res) => {
       // next_pay_date:nextPay,
       status: status,
       duration_value: duration_value,
-      created_by: created_by,
+      // created_by: created_by,
     });
     res.status(201).json(createSubscription);
   } catch (e) {
@@ -40,28 +40,20 @@ exports.createSubcsription = async (req, res) => {
 };
 
 exports.updateSubscription = async (req, res) => {
-  const { name, description, price, duration_term, duration_value } = req.body;
-
-  const subscriptionId = req.params.id;
-
-  const token = req.headers.logintoken;
-  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-  const updated_by = decode.id;
-
+  const { start_date, status } = req.body;
+  const subscription_id = req.params.id;
+  // const token = req.headers.logintoken;
+  // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+  // const updated_by = decode.id;
   const updateSubscription = await Subscription.update(
     {
-      name: name,
-      description: description,
-      price: price,
-      duration_term: duration_term,
-      duration_value: duration_value,
-      updated_by: updated_by,
+      start_date: start_date,
+      status: status,
     },
-    { where: { id: subscriptionId } }
+    { where: { id: subscription_id } }
   );
-
   const updatedSubscriptionValue = await Subscription.findOne({
-    where: { id: subscriptionId },
+    where: { id: subscription_id },
   });
   res.send(updatedSubscriptionValue);
 };
@@ -106,7 +98,6 @@ exports.getSubscriptionByUserId = async (req, res) => {
     const subsById = await Subscription.findAll({
       where: { user_id: subsId },
     });
-    console.log("subsById", subsById);
     if (subsById) {
       res.status(200).json(subsById);
     }
@@ -125,7 +116,6 @@ exports.getSubscriptionById = async (req, res) => {
     const subsById = await Subscription.findOne({
       where: { id: subsId },
     });
-    console.log("subsById", subsById);
     if (subsById) {
       res.status(200).json(subsById);
     }
@@ -158,7 +148,6 @@ exports.getSubscriptionSearchByUserId = async (req, res) => {
       const subsById = await Subscription.findAll({
         where: { user_id: subsId },
       });
-      console.log("subsById", subsById);
       if (subsById) {
         res.status(200).json(subsById);
       }

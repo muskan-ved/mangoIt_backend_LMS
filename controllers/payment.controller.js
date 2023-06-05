@@ -38,7 +38,7 @@ exports.GetpaymentDetailsBycheckoutSessionIdPayment = async (req, res) => {
       cs_test_key,
       { limit: 5 },
       function (err, lineItems) {
-        res.status(201).json({ orderdetails: lineItems });
+        res.status(200).json({ orderdetails: lineItems });
       }
     );
   } catch (error) {
