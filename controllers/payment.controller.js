@@ -15,7 +15,7 @@ exports.AcceptPayment = async (req, res) => {
             product_data: {
               name: productName,
             },
-            unit_amount: amount,
+            unit_amount: amount * 100,
           },
           quantity: quantity,
         },

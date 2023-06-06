@@ -5,8 +5,15 @@ const Transaction = db.Transaction;
 const User = db.User;
 
 exports.createTransaction = async (req, res) => {
-  const { order_id, user_id, payment_method, transaction_id, createdAt } =
-    req.body;
+  const {
+    order_id,
+    user_id,
+    payment_method,
+    transaction_id,
+    createdAt,
+    trx_amount,
+  } = req.body;
+
   //   const token = req.headers.logintoken;
   //   const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   //   const login_user = decode.id;
@@ -22,6 +29,7 @@ exports.createTransaction = async (req, res) => {
       payment_method: payment_method,
       transaction_id: transaction_id,
       createdAt: createdAt,
+      trx_amount: trx_amount,
     });
     res.status(201).json(transactionCreate);
     // }
