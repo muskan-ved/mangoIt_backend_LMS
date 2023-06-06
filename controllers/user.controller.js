@@ -14,6 +14,11 @@ const User = db.User;
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
   const search = req.params.search;
+  const {
+    role_id,
+    status
+} = req.body
+
   try {
     if (search) {
       const users = await User.findAll({
@@ -31,16 +36,43 @@ exports.getUsers = async (req, res) => {
               }
             ),
           },
-          is_deleted: false
-        }
+          is_deleted: false,
+        },
       });
       res.status(200).json(users);
-
-    } else {
+    }
+    else if(role_id == 0 &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status == 0){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id
+        },
+      });
+      res.status(200).json(users);
+    }
+    else if(role_id  &&  status){
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id,
+          status
+        },
+      });
+      res.status(200).json(users);
+    }
+    else {
       const users = await User.findAll({ where: { is_deleted: false } });
       res.status(200).json(users);
     }
-
   } catch (e) {
     res.status(400).json(e);
   }
@@ -64,64 +96,94 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+exports.getUserByEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const getUserByemail = await User.findOne({
+      where: { email: email, is_deleted: false },
+    });
+    if (getUserByemail) {
+      res.status(200).json(getUserByemail);
+    }
+    if (!getUserByemail) {
+      res.status(404).json("User not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
 
 exports.registration = async (req, res) => {
-
-  const { first_name, last_name, email, password, role_id, profile_pic, loggedin_by } = req.body;
+  const {
+    first_name,
+    last_name,
+    email,
+    password,
+    role_id,
+    profile_pic,
+    loggedin_by,
+  } = req.body;
   const checkToken = req.headers.logintoken;
 
   if (!checkToken) {
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
     });
-    if ((email && loggedin_by === 'facebook') || (email && loggedin_by === 'google')) {
+    if (
+      (email && loggedin_by === "facebook") ||
+      (email && loggedin_by === "google")
+    ) {
       //  return res.send('fb or google')
-
 
       if (findUser !== null) {
         // return res.status(400).json("Email already Registered!")
-        const user = await User.update({
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
-          profile_pic: profile_pic,
-          loggedin_by: loggedin_by
-        },
-          { where: { id: findUser.dataValues.id } });
-        const updatedUser = await User.findOne({ where: { id: findUser.dataValues.id } });
+        const user = await User.update(
+          {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            profile_pic: profile_pic,
+            loggedin_by: loggedin_by,
+          },
+          { where: { id: findUser.dataValues.id } }
+        );
+        const updatedUser = await User.findOne({
+          where: { id: findUser.dataValues.id },
+        });
         const token = await generateToken({
           id: findUser.dataValues.id,
           email: email,
         });
-        return res.status(201).json({ updatedUser, loginToken: token })
-
+        return res.status(201).json({ updatedUser, loginToken: token });
       } else {
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
           email: email,
           profile_pic: profile_pic,
-          loggedin_by: loggedin_by
+          loggedin_by: loggedin_by,
         });
         const token = await generateToken({
           id: user.dataValues.id,
           email: email,
         });
 
-        return res.status(201).json({ user, loginToken: token })
+        return res.status(201).json({ user, loginToken: token });
       }
     } else {
       if (findUser) {
         // learner self registration
         return res.status(400).json("Email already Registered!");
-      } else if (!email || !password) {
-        return res.status(400).json("Email and Password Required!");
+      } else if (!email) {
+        return res.status(400).json("Email feild is Required!");
       } else {
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
           email: email,
-          password: await hashPassword(password),
+          password: await hashPassword(
+            password ? password : process.env.TEMPPASS
+          ),
           role_id: role_id,
         });
         return res.status(201).json(user);
@@ -211,19 +273,22 @@ exports.updateUser = async (req, res) => {
   }
 
   if (findUser) {
-    const { first_name, last_name, email, role_id } = req.body;
+    const { first_name, last_name, email, role_id,status } = req.body;
 
     const token = req.headers.logintoken;
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
     const updated_by = decode.id;
     const checkEmail = await User.findOne({ where: { email: email } });
-    const existUser = await User.findOne({ where: { email: email, id: userId } })
+    const existUser = await User.findOne({
+      where: { email: email, id: userId },
+    });
     if (!checkEmail || existUser) {
       const update = await User.update(
         {
           first_name: first_name,
           last_name: last_name,
           role_id: role_id,
+          status,
           email: email,
           updated_by: updated_by,
           profile_pic: profile_pic,
@@ -234,12 +299,9 @@ exports.updateUser = async (req, res) => {
       return res.status(201).json(updatedUser);
     }
 
-
     if (checkEmail) {
-      return res.status(400).json('Email already Registered!')
+      return res.status(400).json("Email already Registered!");
     }
-
-
   }
 };
 
@@ -316,8 +378,9 @@ exports.sendGmail = async (req, res) => {
     try {
       // console.log(findUser,"44444444444444444444")
       const { result, full } = await send({
-        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${findUser.last_name
-          },</p>
+        html: `<p>Hi ${capitalizeFirstLetter(findUser.first_name)} ${
+          findUser.last_name
+        },</p>
         <p>There was a request to change your password!
       <span>If you did not make this request then please ignore this email.</span></p>
         <p>Otherwise, please click this link to change your password: <a href="
