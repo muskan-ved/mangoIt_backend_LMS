@@ -3,6 +3,7 @@ require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Subscription = db.Subscription;
 const subscriptionPlan = db.subscriptionPlan;
+const User = db.User
 
 exports.createSubcsription = async (req, res) => {
   const {
@@ -83,14 +84,28 @@ exports.deleteSubscription = async (req, res) => {
 };
 
 exports.getAllSubscription = async (req, res) => {
-  const sequelize = require("sequelize");
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
+  const search = req.params.search;
+let users;
   try {
-    const users = await Subscription.findAll({});
+    if(search){
+     users = await Subscription.findAll({include: [User],
+    where:{
+      name: {
+        [Op.like]: `%${search}%`,
+      },
+      isDeleted: false,
+    }});
+  }else{
+    users = await Subscription.findAll({include: [User],where:{ isDeleted: false}});
+  }
     res.status(200).json(users);
   } catch (e) {
     res.status(400).json(e);
   }
 };
+
 exports.getSubscriptionByUserId = async (req, res) => {
   // res.send("all session");
   const subsId = req.params.id;
@@ -110,7 +125,7 @@ exports.getSubscriptionByUserId = async (req, res) => {
 };
 
 exports.getSubscriptionById = async (req, res) => {
-  // res.send("all session");
+
   const subsId = req.params.id;
   try {
     const subsById = await Subscription.findOne({

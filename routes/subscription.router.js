@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/createsubscription", createSubcsription);
 router.put("/updatesubscription/:id", webProtection, updateSubscription);
 router.delete("/deletesubscription/:id", webProtection, deleteSubscription);
-router.get("/getsubscription", webProtection, getAllSubscription);
+router.get("/getsubscription/:search?", webProtection, getAllSubscription);
 router.get("/getsubscriptionbyid/:id", getSubscriptionById);
 router.get("/getsubscriptionbyuserid/:id", getSubscriptionByUserId);
 router.post(
