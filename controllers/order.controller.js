@@ -91,7 +91,7 @@ exports.createOrder = async (req, res) => {
 
 exports.updateOrder = async (req, res) => {
   const orderId = req.params.id;
-  const { status } = req.body;
+  const { status, transaction_id } = req.body;
 
   // const token = req.headers.logintoken;
   // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -100,6 +100,7 @@ exports.updateOrder = async (req, res) => {
     const orderUpdate = await Order.update(
       {
         status: status,
+        transaction_id: transaction_id,
         updated_by: 1,
       },
       { where: { id: orderId } }
