@@ -24,7 +24,7 @@ router.post('/resetpassword', webProtection, resetPassword)
 router.post('/sendgmail', webProtection, upload.single("attachment"), sendGmail)
 router.get("/getusers/:search?", webProtection, getUsers);
 router.get("/getuser/:id", webProtection, getUserById);
-router.post("/getuserbyemail", webProtection, getUserByEmail);
+router.post("/getuserbyemail", getUserByEmail);
 router.post("/registration", webProtection, registration);
 router.post("/loginuser", webProtection, loginUser);
 router.put(

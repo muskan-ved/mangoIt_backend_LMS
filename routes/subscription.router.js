@@ -14,7 +14,7 @@ const {
 } = require("../controllers/subscription.controller");
 const router = express.Router();
 
-router.post("/createsubscription", webProtection, createSubcsription);
+router.post("/createsubscription", createSubcsription);
 router.put("/updatesubscription/:id", webProtection, updateSubscription);
 router.delete("/deletesubscription/:id", webProtection, deleteSubscription);
 router.get("/getsubscription/:search?", webProtection, getAllSubscription);
@@ -34,8 +34,8 @@ router.get(
   getSubscriptionPlansDetById
 );
 
-router.post("/createsubscription", webProtection, createSubcsription);
-router.put("/updatesubscription/:id", webProtection, updateSubscription);
+router.post("/createsubscription", createSubcsription);
+router.put("/updatesubscription/:id", updateSubscription);
 router.put(
   "/updatesubscriptionstatus/:id",
   webProtection,

@@ -15,7 +15,7 @@ exports.AcceptPayment = async (req, res) => {
             product_data: {
               name: productName,
             },
-            unit_amount: amount,
+            unit_amount: amount * 100,
           },
           quantity: quantity,
         },
@@ -38,7 +38,7 @@ exports.GetpaymentDetailsBycheckoutSessionIdPayment = async (req, res) => {
       cs_test_key,
       { limit: 5 },
       function (err, lineItems) {
-        res.status(201).json({ orderdetails: lineItems });
+        res.status(200).json({ orderdetails: lineItems });
       }
     );
   } catch (error) {

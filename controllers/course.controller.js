@@ -73,7 +73,6 @@ exports.getCourses = async (req, res) => {
           status,
         },
       });
-      console.log(courses, "courses");
       const moduleCounts = await Module.findAll({
         attributes: [
           "course_id",
@@ -127,6 +126,40 @@ exports.getCourseById = async (req, res) => {
     const courseById = await Course.findOne({
       where: { id: courseId, is_deleted: false },
     });
+
+    // const users = await sequelize.query(
+    //   "SELECT  COUNT(`course_id`) AS `moduleCount` FROM `modules` where course_id = 5`",
+    //   { type: QueryTypes.SELECT }
+    // );
+
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@", users);
+
+    // const moduleCounts = await Module.findOne({
+    //   attributes: [
+    //     "course_id",
+    //     [Sequelize.fn("COUNT", Sequelize.col("course_id")), "moduleCount"],
+    //   ],
+    //   where: { course_id: courseId },
+    // });
+
+    // const moduleCountsMap = new Map();
+    // moduleCounts.forEach((count) => {
+    //   moduleCountsMap.set(count.course_id, count.moduleCount);
+    // });
+
+  
+
+    // const sessionCounts = await Session.findAll({
+    //   attributes: [
+    //     "course_id",
+    //     [Sequelize.fn("COUNT", Sequelize.col("course_id")), "sessionCount"],
+    //   ],
+    //   where: { course_id: courseId },
+    // });
+    // const sessionCountsMap = new Map();
+    // sessionCounts.forEach((count) => {
+    //   sessionCountsMap.set(count.course_id, count.sessionCount);
+    // });
 
     if (courseById) {
       res.status(200).json(courseById);
@@ -244,7 +277,6 @@ exports.deleteCourse = async (req, res) => {
       });
 
       const moduleDeletedId = findModuleDeleted.id;
-      // console.log(moduleDeletedId)
       const sessionDeleted = await Session.update(
         { is_deleted: true, deleted_by: deleted_by },
         { where: { module_id: moduleDeletedId } }
