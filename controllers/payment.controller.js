@@ -1,6 +1,7 @@
 require("dotenv").config();
 const Stripe = require("stripe");
 //add stripe key
+
 const stripe = Stripe(process.env.STRIPE_SECRETE_KEY);
 
 exports.AcceptPayment = async (req, res) => {

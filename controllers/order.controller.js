@@ -152,3 +152,27 @@ exports.getOrderByUserId = async (req, res) => {
     res.status(400).json(e);
   }
 };
+
+exports.createOrderforRenewSubscriptio = async (req, res) => {
+  console.log(req.body);
+  const { userId, subscriptioId } = req.body;
+
+  try {
+    const orderByUserId = await Order.findAll({
+      where: { user_id: userId },
+      order: [["id", "DESC"]],
+    });
+
+    console.log(orderByUserId);
+
+    return false;
+    if (orderByUserId) {
+      res.status(200).json(orderByUserId);
+    }
+    if (!orderByUserId) {
+      res.status(404).json("orders not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
