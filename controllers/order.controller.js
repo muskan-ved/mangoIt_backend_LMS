@@ -158,20 +158,27 @@ exports.createOrderforRenewSubscriptio = async (req, res) => {
   const { userId, subscriptioId } = req.body;
 
   try {
+    //get orders by user id
     const orderByUserId = await Order.findAll({
       where: { user_id: userId },
       order: [["id", "DESC"]],
     });
-
-    console.log(orderByUserId);
-
-    return false;
-    if (orderByUserId) {
-      res.status(200).json(orderByUserId);
-    }
-    if (!orderByUserId) {
-      res.status(404).json("orders not Found!");
-    }
+    //get subscription plan det
+    const getSubscriptionsBysubId = await Order.findAll({
+      where: { user_id: userId },
+      order: [["id", "DESC"]],
+    });
+    //create subscription order
+    const orderCreate = await Order.create({
+      user_id: userId,
+      subscription_id: subscriptioId,
+      amount: amount,
+      status: "",
+      parent_order_id: parent_order_id,
+      order_type: order_type,
+      created_by: userId,
+    });
+    res.json(orderCreate);
   } catch (e) {
     res.status(400).json(e);
   }
