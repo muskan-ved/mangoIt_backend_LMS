@@ -91,7 +91,7 @@ exports.createOrder = async (req, res) => {
 
 exports.updateOrder = async (req, res) => {
   const orderId = req.params.id;
-  const { status } = req.body;
+  const { status, transaction_id } = req.body;
 
   // const token = req.headers.logintoken;
   // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -100,6 +100,7 @@ exports.updateOrder = async (req, res) => {
     const orderUpdate = await Order.update(
       {
         status: status,
+        transaction_id: transaction_id,
         updated_by: 1,
       },
       { where: { id: orderId } }
@@ -147,6 +148,34 @@ exports.getOrderByUserId = async (req, res) => {
     if (!orderByUserId) {
       res.status(404).json("orderId not Found!");
     }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.createOrderforRenewSubscriptio = async (req, res) => {
+  const { userId, subscriptioId } = req.body;
+  try {
+    //get orders by user id
+    const orderByUserId = await Order.findAll({
+      where: { user_id: userId },
+      order: [["id", "DESC"]],
+    });
+    //get subscription plan det
+    const getSubscriptionsBysubId = await db.Subscription.findAll({
+      where: { user_id: userId, id: subscriptioId },
+    });
+    //create subscription order
+    const orderCreate = await Order.create({
+      user_id: userId,
+      subscription_id: subscriptioId,
+      amount: getSubscriptionsBysubId[0]?.price,
+      status: "unpaid",
+      parent_order_id: orderByUserId[0]?.id,
+      order_type: orderByUserId[0]?.order_type,
+      created_by: userId,
+    });
+    res.status(201).json(orderCreate);
   } catch (e) {
     res.status(400).json(e);
   }
