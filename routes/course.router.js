@@ -32,4 +32,7 @@ router.delete("/deletecourse/:id", webProtection, deleteCourse);
 router.get("/get_course_by_id/:id", getCourseByIdConn);
 router.post("/downloadreceipt", DownloadReceiptAfterPay);
 
+
+
+
 module.exports = router;

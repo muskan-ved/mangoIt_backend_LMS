@@ -154,9 +154,7 @@ exports.getOrderByUserId = async (req, res) => {
 };
 
 exports.createOrderforRenewSubscriptio = async (req, res) => {
-  console.log(req.body);
   const { userId, subscriptioId } = req.body;
-
   try {
     //get orders by user id
     const orderByUserId = await Order.findAll({
@@ -164,21 +162,20 @@ exports.createOrderforRenewSubscriptio = async (req, res) => {
       order: [["id", "DESC"]],
     });
     //get subscription plan det
-    const getSubscriptionsBysubId = await Order.findAll({
-      where: { user_id: userId },
-      order: [["id", "DESC"]],
+    const getSubscriptionsBysubId = await db.Subscription.findAll({
+      where: { user_id: userId, id: subscriptioId },
     });
     //create subscription order
     const orderCreate = await Order.create({
       user_id: userId,
       subscription_id: subscriptioId,
-      amount: amount,
-      status: "",
-      parent_order_id: parent_order_id,
-      order_type: order_type,
+      amount: getSubscriptionsBysubId[0]?.price,
+      status: "unpaid",
+      parent_order_id: orderByUserId[0]?.id,
+      order_type: orderByUserId[0]?.order_type,
       created_by: userId,
     });
-    res.json(orderCreate);
+    res.status(201).json(orderCreate);
   } catch (e) {
     res.status(400).json(e);
   }
