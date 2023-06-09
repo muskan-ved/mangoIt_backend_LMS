@@ -12,14 +12,10 @@ const { capitalizeFirstLetter } = require("../helper/help");
 const User = db.User;
 const EmailManage = db.EmailManage;
 
-
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
   const search = req.params.search;
-  const {
-    role_id,
-    status
-} = req.body
+  const { role_id, status } = req.body;
 
   try {
     if (search) {
@@ -42,36 +38,32 @@ exports.getUsers = async (req, res) => {
         },
       });
       res.status(200).json(users);
-    }
-    else if(role_id == 0 &&  status){
+    } else if (role_id == 0 && status) {
       const users = await User.findAll({
         where: {
           is_deleted: false,
-          status
+          status,
         },
       });
       res.status(200).json(users);
-    }
-    else if(role_id  &&  status == 0){
-      const users = await User.findAll({
-        where: {
-          is_deleted: false,
-          role_id
-        },
-      });
-      res.status(200).json(users);
-    }
-    else if(role_id  &&  status){
+    } else if (role_id && status == 0) {
       const users = await User.findAll({
         where: {
           is_deleted: false,
           role_id,
-          status
         },
       });
       res.status(200).json(users);
-    }
-    else {
+    } else if (role_id && status) {
+      const users = await User.findAll({
+        where: {
+          is_deleted: false,
+          role_id,
+          status,
+        },
+      });
+      res.status(200).json(users);
+    } else {
       const users = await User.findAll({ where: { is_deleted: false } });
       res.status(200).json(users);
     }
@@ -231,33 +223,42 @@ exports.registration = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).json("Email and Password Required!");
-  }
+  const { email, password, identifier } = req.body;
 
-  const user = await User.findOne({
-    where: { email: req.body.email, is_deleted: false },
-  });
-  if (!user) {
-    return res.status(404).json("User not exist with this Email!");
-  }
-
-  const validPassword = await isValidPassword(password, user.password);
-
-  if (!validPassword) {
-    res.status(400).json("Password Incorrect!");
-  }
-  if (validPassword) {
+  if (email && identifier === "userautologinwithemail") {
+    const user = await User.findOne({
+      where: { email: email, is_deleted: false },
+    });
     const token = await generateToken({
       id: user.id,
       email: user.email,
     });
-
     res.status(200).json({
       userDetails: user,
       loginToken: token,
     });
+  } else {
+    const user = await User.findOne({
+      where: { email: email, is_deleted: false },
+    });
+    if (!user) {
+      return res.status(404).json("User not exist with this Email!");
+    }
+    const validPassword = await isValidPassword(password, user.password);
+    if (!validPassword) {
+      res.status(400).json("Password Incorrect!");
+    }
+    if (validPassword) {
+      const token = await generateToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      res.status(200).json({
+        userDetails: user,
+        loginToken: token,
+      });
+    }
   }
 };
 
@@ -275,7 +276,7 @@ exports.updateUser = async (req, res) => {
   }
 
   if (findUser) {
-    const { first_name, last_name, email, role_id,status } = req.body;
+    const { first_name, last_name, email, role_id, status } = req.body;
 
     const token = req.headers.logintoken;
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
@@ -363,13 +364,17 @@ exports.sendGmail = async (req, res) => {
   });
 
   const findEmailSendingData = await EmailManage.findOne({
-    where: { emailtype: 'forgot_password'},
+    where: { emailtype: "forgot_password" },
   });
 
-   let result = findEmailSendingData.dataValues.emailbodytext.replace("{{username}}", `${capitalizeFirstLetter(findUser && findUser?.first_name)} ${findUser && findUser?.last_name
-          }`);
+  let result = findEmailSendingData.dataValues.emailbodytext.replace(
+    "{{username}}",
+    `${capitalizeFirstLetter(findUser && findUser?.first_name)} ${
+      findUser && findUser?.last_name
+    }`
+  );
 
-  console.log(findEmailSendingData.dataValues,"33333",result,findUser)
+  console.log(findEmailSendingData.dataValues, "33333", result, findUser);
   if (!findUser) {
     return res.status(400).json("this email is not register with us!");
   }

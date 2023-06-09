@@ -13,6 +13,7 @@ exports.createEnrollCourse = async (req, res) => {
 
   try {
     const findLoginUser = await User.findOne({ where: { id: login_user } });
+
     if (!(findLoginUser.role_id == 1)) {
       //learner user
       const enrollCourse = await Enrollcourse.create({
