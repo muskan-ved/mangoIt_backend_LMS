@@ -113,7 +113,6 @@ exports.getCourseByUser = async (req, res) => {
   const search = req.params.search;
   try {
     if (search) {
-      console.log("@@@@@@@@@@@@@@", search);
       const getEnrollData = await Enrollcourse.findAll({
         where: { user_id: user_id, is_deleted: false },
         include: [
@@ -153,7 +152,39 @@ exports.getCourseByUser = async (req, res) => {
       sessionCounts.forEach((count) => {
         sessionCountsMap.set(count.course_id, count.sessionCount);
       });
+      //////////////////Percent of completed//////////////////////////////
+      const enrollCourse = await Enrollcourse.findAll({
+        where: { user_id: user_id },
+      });
 
+      let getEnrollData1;
+      const courseIdCounts = {};
+      for (let i = 0; i < enrollCourse.length; i++) {
+        getEnrollData1 = enrollCourse[i].view_history;
+        if (getEnrollData1 !== null) {
+          getEnrollData1.map((ea) => {
+            Object.assign(ea, { courseId: enrollCourse[i].course_id });
+          });
+
+          getEnrollData1.forEach((obj) => {
+            const courseId = obj["courseId"];
+
+            if (!courseIdCounts[courseId]) {
+              courseIdCounts[courseId] = 0;
+            }
+
+            for (const key in obj) {
+              if (key !== "courseId") {
+                courseIdCounts[courseId] += obj[key].length;
+              }
+            }
+          });
+        } else {
+          console.log("empty");
+        }
+      }
+
+      ///////////////////////Percent of completed//////////////////////////
       const combinedArray = getEnrollData.map((course) => {
         const sessionCount = sessionCounts.filter((count) =>
           count.course_id !== course.course_id
@@ -167,6 +198,7 @@ exports.getCourseByUser = async (req, res) => {
         );
         return {
           course,
+          courseIdCounts: courseIdCounts,
           sessionCount: sessionCount,
           moduleCount: moduleCount,
         };
@@ -212,7 +244,37 @@ exports.getCourseByUser = async (req, res) => {
       sessionCounts.forEach((count) => {
         sessionCountsMap.set(count.course_id, count.sessionCount);
       });
+      ////////////////////////////////////////////////
+      const enrollCourse = await Enrollcourse.findAll({
+        where: { user_id: user_id },
+      });
 
+      let getEnrollData1;
+      const courseIdCounts = {};
+      for (let i = 0; i < enrollCourse.length; i++) {
+        getEnrollData1 = enrollCourse[i].view_history;
+        if (getEnrollData1 !== null) {
+          getEnrollData1.map((ea) => {
+            Object.assign(ea, { courseId: enrollCourse[i].course_id });
+          });
+
+          getEnrollData1.forEach((obj) => {
+            const courseId = obj["courseId"];
+            if (!courseIdCounts[courseId]) {
+              courseIdCounts[courseId] = 0;
+            }
+            for (const key in obj) {
+              if (key !== "courseId") {
+                courseIdCounts[courseId] += obj[key].length;
+              }
+            }
+          });
+        } else {
+          console.log("empty");
+        }
+      }
+
+      /////////////////////////////////////////////////
       const combinedArray = getEnrollData.map((course) => {
         const sessionCount = sessionCounts.filter((count) =>
           count.course_id !== course.course_id
@@ -226,11 +288,11 @@ exports.getCourseByUser = async (req, res) => {
         );
         return {
           course,
+          courseIdCounts: courseIdCounts,
           sessionCount: sessionCount,
           moduleCount: moduleCount,
         };
       });
-
       if (combinedArray) {
         res.status(200).json(combinedArray);
       }
@@ -247,90 +309,78 @@ exports.getEnrollPercent = async (req, res) => {
   const user_id = req.params.id;
 
   try {
-    let newmoduleArr = [];
-    let newSessionArr = [];
-
     const enrollCourse = await Enrollcourse.findAll({
       where: { user_id: user_id },
     });
-    let newDaa;
-    let modul;
+
+    let getEnrollData;
+    let arr = [];
+    const courseIdCounts = {};
     for (let i = 0; i < enrollCourse.length; i++) {
-      newDaa = enrollCourse[i].view_history;
-      newDaa.map((ea) => {
-        ea.sessionId.map((ia) => {
-          newSessionArr.push({
-            courseId: enrollCourse[i].course_id,
-            moduleId: ea.moduleId,
-            sessionId: ia,
-          });
-        });
+      getEnrollData = enrollCourse[i].view_history;
+      getEnrollData.map((ea) => {
+        Object.assign(ea, { courseId: enrollCourse[i].course_id });
       });
+
+      getEnrollData.forEach((obj) => {
+        const courseId = obj["courseId"];
+
+        if (!courseIdCounts[courseId]) {
+          courseIdCounts[courseId] = 0;
+        }
+
+        for (const key in obj) {
+          if (key !== "courseId") {
+            courseIdCounts[courseId] += obj[key].length;
+          }
+        }
+      });
+      // getEnrollData.forEach((item) => {
+      //   arr.push(item);
+      // });
     }
+    const response = {
+      courseIdCounts: courseIdCounts,
+    };
 
-    
-const combinedObject = {};
-
-newSessionArr.forEach((obj) => {
-  const { courseId, moduleId, sessionId } = obj;
-
-  if (!combinedObject[courseId]) {
-    combinedObject[courseId] = {};
-  }
-
-  if (!combinedObject[courseId][moduleId]) {
-    combinedObject[courseId][moduleId] = [];
-  }
-
-  combinedObject[courseId][moduleId].push({ sessionId });
-});
-
-
-    console.log("newSessionArrnewSessionArr", combinedObject);
-
-    res.status(201).json(combinedObject);
+    console.log("Course ID Counts:", response);
+    res.status(201).json(response);
   } catch (e) {
     res.status(400).json(e);
   }
 };
 
-// exports.getEnrollPercent = async (req, res) => {
-//   const user_id = req.params.id;
-
-//   try {
-//     let newmoduleArr = [];
-//     let newSessionArr = [];
-
-//     const enrollCourse = await Enrollcourse.findAll({
-//       where: { user_id: user_id },
-//     });
-
-//     const getModule = enrollCourse.map((ea) => {
-//       console.log('eaaaaaaaaa',ea.course_id);
-//       return ea?.view_history;
-//     });
-
-//     const getmodule1 = getModule.map((ia) => {
-//       ia.map((ec) => {
-//         newmoduleArr.push(ec.moduleId);
-//         ec.sessionId.map((it) => {
-//           newSessionArr.push(it);
-//         });
-//       });
-//     });
-//     console.log("newmoduleArrnewmoduleArr", newmoduleArr);
-//     const getFinalCount = await Session.count({
-//       where: {
-//         module_id: {
-//           [Op.in]: newmoduleArr,
-//         },
-//       },
-//     });
-//     let newSessionLength = newSessionArr?.length;
-//     const totalPercent = (newSessionLength / getFinalCount) * 100;
-
-//     res.status(201).json(totalPercent);
-//   } catch (e) {
-//     res.status(400).json(e);
-//   }
-// };
+exports.markAsCompleteCourse = async (req, res) => {
+  const { user_id, course_id, module_id, session_id } = req.body;
+  try {
+    if (!user_id && !course_id) {
+      res.status(404).json("All field are required!");
+    } else {
+      const updateEnroll = await Enrollcourse.findOne({
+        where: { user_id: user_id, course_id: course_id },
+      });
+      if (updateEnroll) {
+        const enrollId = updateEnroll.view_history;
+        if (enrollId === null) {
+          let data = [
+            {
+              [module_id] : [session_id],
+            },
+          ];
+          const updateEnl = await Enrollcourse.update(
+            { view_history: data },
+            { where: { id: updateEnroll.id } }
+          );
+          res.status(201).json("Data Inserted");
+        } else {
+          console.log("updatedddddd");
+        }
+      } else {
+        console.log("Enrollment not found");
+      }
+      // res.status(201).json(updateEnroll);
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
