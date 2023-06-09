@@ -1,10 +1,12 @@
 require("dotenv").config();
 const Stripe = require("stripe");
-//add stripe key
-const stripe = Stripe(process.env.STRIPE_SECRETE_KEY);
-
+const { getStripeKeys } = require("../common/commonfunctions");
 exports.AcceptPayment = async (req, res) => {
-  //#####################  payment by Shubham ##########################################
+  //get stripe key
+  const stripekey = await getStripeKeys();
+  //add stripe key
+  const stripe = Stripe(stripekey[0]?.value);
+  //order det
   const { productName, amount, quantity } = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
@@ -31,7 +33,10 @@ exports.AcceptPayment = async (req, res) => {
 };
 
 exports.GetpaymentDetailsBycheckoutSessionIdPayment = async (req, res) => {
-  //#####################  payment by Shubham ##########################################
+  //get stripe key
+  const stripekey = await getStripeKeys();
+  //add stripe key
+  const stripe = Stripe(stripekey[0]?.value);
   const { cs_test_key } = req.body;
   try {
     stripe.checkout.sessions.listLineItems(

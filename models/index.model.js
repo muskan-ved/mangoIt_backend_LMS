@@ -28,18 +28,19 @@ db.Token = require("./token.model")(sequelize, Sequelize);
 db.Site = require("./siteconfig.model")(sequelize, Sequelize);
 db.EmailManage = require("./emailmanage.model")(sequelize, Sequelize);
 db.subscriptionPlan = require("./subscriptionplan.model")(sequelize, Sequelize);
-db.Course = require('./course.model')(sequelize, Sequelize)
-db.Module = require('./module.model')(sequelize, Sequelize)
-db.Session = require('./session.model')(sequelize, Sequelize)
-db.Subscription = require('./subscription.model')(sequelize, Sequelize)
-db.Order = require('./order.model')(sequelize,Sequelize)
-db.Transaction = require('./tranaction.model')(sequelize,Sequelize)
-db.Enrollcourse = require('./enrollcourse.model')(sequelize,Sequelize)
-db.Payment = require('./payment.model')(sequelize,Sequelize)
-db.Token = require('./token.model')(sequelize,Sequelize)
-db.Site = require('./siteconfig.model')(sequelize,Sequelize)
-db.EmailManage = require('./emailmanage.model')(sequelize,Sequelize)
-db.EmailType = require('./emailtype.model')(sequelize,Sequelize)
+db.Course = require("./course.model")(sequelize, Sequelize);
+db.Module = require("./module.model")(sequelize, Sequelize);
+db.Session = require("./session.model")(sequelize, Sequelize);
+db.Subscription = require("./subscription.model")(sequelize, Sequelize);
+db.Order = require("./order.model")(sequelize, Sequelize);
+db.Transaction = require("./tranaction.model")(sequelize, Sequelize);
+db.Enrollcourse = require("./enrollcourse.model")(sequelize, Sequelize);
+db.Payment = require("./payment.model")(sequelize, Sequelize);
+db.Token = require("./token.model")(sequelize, Sequelize);
+db.Site = require("./siteconfig.model")(sequelize, Sequelize);
+db.EmailManage = require("./emailmanage.model")(sequelize, Sequelize);
+db.EmailType = require("./emailtype.model")(sequelize, Sequelize);
+db.EnrollCourses = require("./enrollcourse.model")(sequelize, Sequelize);
 
 // User.hasMany(Invoice);
 // Invoice.belongsTo(User);
@@ -53,8 +54,8 @@ db.Session.belongsTo(db.Module, { foreignKey: "module_id" });
 db.Course.hasMany(db.Module, { foreignKey: "course_id" });
 db.Module.belongsTo(db.Course, { foreignKey: "course_id" });
 
-db.Subscription.belongsTo(db.User, { foreignKey: 'user_id' });
-db.User.hasMany(db.Subscription, { foreignKey: 'user_id' });
+db.Subscription.belongsTo(db.User, { foreignKey: "user_id" });
+db.User.hasMany(db.Subscription, { foreignKey: "user_id" });
 
 // db.Session.hasMany(db.Module, {foreignKey: 'session_id'});
 // db.Module.belongsTo(db.Session, {foreignKey: 'session_id'})
