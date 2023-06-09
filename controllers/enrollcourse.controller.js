@@ -1,8 +1,10 @@
+const { QueryTypes } = require("sequelize");
 const db = require("../models/index.model");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Enrollcourse = db.Enrollcourse;
 const User = db.User;
+const Course = db.Course;
 
 exports.createEnrollCourse = async (req, res) => {
   const { user_id, course_id, course_type, view_history, mark_compelete } =
@@ -112,6 +114,23 @@ exports.checkEnrolledcourseornotbyuserId = async (req, res) => {
       },
     });
     res.status(200).json(checkenrolledcourse);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getTopenrolledCourses = async (req, res) => {
+  try {
+    db.sequelize
+      .query(
+        "SELECT S.id, S.title, S.is_chargeable, count(S.id) as count FROM courses S INNER JOIN `enroll-courses` R ON S.id = R.course_id GROUP BY S.id, S.title ORDER BY LENGTH(count), count desc",
+        {
+          type: db.sequelize.QueryTypes.SELECT,
+        }
+      )
+      .then((courses) => {
+        res.status(200).json(courses);
+      });
   } catch (e) {
     res.status(400).json(e);
   }
