@@ -8,6 +8,7 @@ const Module = db.Module;
 const Session = db.Session;
 const Course = db.Course;
 var Op = Sequelize.Op;
+const { QueryTypes } = require("sequelize");
 
 exports.createEnrollCourse = async (req, res) => {
   const { user_id, course_id, course_type, view_history, mark_compelete } =
@@ -18,7 +19,7 @@ exports.createEnrollCourse = async (req, res) => {
   const login_user = decode.id;
 
   try {
-    findLoginUser = await User.findOne({ where: { id: login_user } });
+    const findLoginUser = await User.findOne({ where: { id: login_user } });
 
     if (!(findLoginUser.role_id == 1)) {
       //learner user
@@ -277,10 +278,11 @@ exports.getCourseByUser = async (req, res) => {
       /////////////////////////////////////////////////
       const combinedArray = getEnrollData.map((course) => {
         const sessionCount = sessionCounts.filter((count) =>
-          count.course_id !== course.course_id
-            ? count.sessionCount
-            : { sessionCount: 0 }
+		count.course_id !== course.course_id
+		? count.sessionCount
+		: { sessionCount: 0 }
         );
+		console.log("sessionCountsessionCount", sessionCount)
         const moduleCount = moduleCounts.filter((count) =>
           count.course_id !== course.course_id
             ? count.moduleCount
@@ -350,6 +352,21 @@ exports.getEnrollPercent = async (req, res) => {
   }
 };
 
+exports.checkEnrolledcourseornotbyuserId = async (req, res) => {
+  const { user_id, course_id } = req.body;
+  try {
+    const checkenrolledcourse = await Enrollcourse.findAll({
+      where: {
+        user_id: user_id,
+        course_id: course_id,
+      },
+    });
+    res.status(200).json(checkenrolledcourse);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
 exports.markAsCompleteCourse = async (req, res) => {
   const { user_id, course_id, module_id, session_id } = req.body;
   try {
@@ -364,22 +381,81 @@ exports.markAsCompleteCourse = async (req, res) => {
         if (enrollId === null) {
           let data = [
             {
-              [module_id] : [session_id],
+              [module_id]: [session_id],
             },
           ];
           const updateEnl = await Enrollcourse.update(
             { view_history: data },
             { where: { id: updateEnroll.id } }
           );
-          res.status(201).json("Data Inserted");
+          res.status(201).json("Mark as complete successfully");
         } else {
-          console.log("updatedddddd");
+          const alreadyExists = await Enrollcourse.findOne({
+            where: { id: updateEnroll.id },
+          });
+          const viewHistory = alreadyExists?.view_history;
+          for (let i = 0; i < viewHistory.length; i++) {
+            const key = module_id;
+            const value = session_id;
+            // Check if the key exists in the viewHistory array
+            const objectIndex = viewHistory.findIndex((obj) =>
+              obj.hasOwnProperty(key)
+            );
+            if (objectIndex !== -1) {
+              const existingArray = viewHistory[objectIndex][key];
+
+              if (existingArray.includes(value)) {
+                res.status(201).json("Already Completed");
+              } else {
+                // Value is not present, push it to the associated array
+                existingArray.push(value);
+                viewHistory[objectIndex][key] = existingArray;
+
+                const updateEnl = await Enrollcourse.update(
+                  { view_history: viewHistory },
+                  { where: { id: updateEnroll.id } }
+                );
+
+                res.status(201).json("Mark as complete successfully");
+              }
+            } else {
+              const index = 0; // Index where the key-value pair should be inserted
+
+              if (index >= 0 && index < viewHistory.length) {
+                const obj = viewHistory[index];
+                obj[key] = [value];
+                const updateEnl = await Enrollcourse.update(
+                  { view_history: viewHistory },
+                  { where: { id: updateEnroll.id } }
+                );
+                res.status(201).json("Mark as complete successfully");
+              } else {
+                console.error("Invalid index");
+              }
+            }
+          }
         }
       } else {
         console.log("Enrollment not found");
       }
-      // res.status(201).json(updateEnroll);
     }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getTopenrolledCourses = async (req, res) => {
+  try {
+    db.sequelize
+      .query(
+        "SELECT S.id, S.title, S.is_chargeable, count(S.id) as count FROM courses S INNER JOIN `enroll-courses` R ON S.id = R.course_id GROUP BY S.id, S.title ORDER BY LENGTH(count), count desc",
+        {
+          type: db.sequelize.QueryTypes.SELECT,
+        }
+      )
+      .then((courses) => {
+        res.status(200).json(courses);
+      });
   } catch (e) {
     res.status(400).json(e);
   }

@@ -6,7 +6,9 @@ const {
   deleteEnrollCourse,
   getCourseByUser,
   getEnrollPercent,
-  markAsCompleteCourse
+  markAsCompleteCourse,
+  checkEnrolledcourseornotbyuserId,
+  getTopenrolledCourses,
 } = require("../controllers/enrollcourse.controller");
 const router = express.Router();
 
@@ -18,5 +20,7 @@ router.put("/markascompletecourse", markAsCompleteCourse);
 
 router.get("/get_enroll_total/:id", getEnrollPercent);
 
+router.post("/checenrollcourses", checkEnrolledcourseornotbyuserId);
+router.get("/topenrolledcourses", getTopenrolledCourses);
 
 module.exports = router;
