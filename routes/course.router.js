@@ -13,7 +13,7 @@ const { webProtection } = require("../helper/auth");
 const router = express.Router();
 const { upload } = require("../helper/upload");
 
-router.post("/getcourse/:search?", webProtection, getCourses);
+router.post("/getcourse/:search?", getCourses);
 router.get("/getcourse/:id", getCourseById);
 // router.get("/getcoursebysearch/:search", webProtection, getCourseBySearch)
 router.post(
@@ -31,8 +31,5 @@ router.put(
 router.delete("/deletecourse/:id", webProtection, deleteCourse);
 router.get("/get_course_by_id/:id", getCourseByIdConn);
 router.post("/downloadreceipt", DownloadReceiptAfterPay);
-
-
-
 
 module.exports = router;
