@@ -10,14 +10,13 @@ const {
   getSubscriptionSearchByUserId,
   getSubscriptionPlans,
   getSubscriptionPlansDetById,
-  updateSubscriptionStatus,
 } = require("../controllers/subscription.controller");
 const router = express.Router();
 
 router.post("/createsubscription", createSubcsription);
 router.put("/updatesubscription/:id", webProtection, updateSubscription);
 router.delete("/deletesubscription/:id", webProtection, deleteSubscription);
-router.get("/getsubscription/:search?", webProtection, getAllSubscription);
+router.post("/getsubscription/:search?", webProtection, getAllSubscription);
 router.get("/getsubscriptionbyid/:id", getSubscriptionById);
 router.get("/getsubscriptionbyuserid/:id", getSubscriptionByUserId);
 router.post(
@@ -36,11 +35,6 @@ router.get(
 
 router.post("/createsubscription", createSubcsription);
 router.put("/updatesubscription/:id", updateSubscription);
-router.put(
-  "/updatesubscriptionstatus/:id",
-  webProtection,
-  updateSubscriptionStatus
-);
 router.delete("/deletesubscription/:id", webProtection, deleteSubscription);
 router.get("/getsubscription", webProtection, getAllSubscription);
 router.get("/getsubscriptionbyid/:id", getSubscriptionById);
