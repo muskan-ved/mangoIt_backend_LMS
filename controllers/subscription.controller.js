@@ -29,10 +29,8 @@ exports.createSubcsription = async (req, res) => {
       duration_term: duration_term,
       user_id: userId,
       start_date: startDate,
-      // next_pay_date:nextPay,
       status: status,
       duration_value: duration_value,
-      // created_by: created_by,
     });
     res.status(201).json(createSubscription);
   } catch (e) {
@@ -41,14 +39,18 @@ exports.createSubcsription = async (req, res) => {
 };
 
 exports.updateSubscription = async (req, res) => {
-  const { start_date, status } = req.body;
+  const { start_date, status,startDate,duration_value,userId,duration_term ,price,description,name} = req.body;
   const subscription_id = req.params.id;
-  // const token = req.headers.logintoken;
-  // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-  // const updated_by = decode.id;
+
   const updateSubscription = await Subscription.update(
     {
-      start_date: start_date,
+      name: name,
+      description: description,
+      price: price,
+      duration_term: duration_term,
+      user_id: userId,
+      duration_value: duration_value,
+      start_date: (start_date || startDate),
       status: status,
     },
     { where: { id: subscription_id } }
@@ -88,6 +90,7 @@ exports.getAllSubscription = async (req, res) => {
   const Op = Sequelize.Op;
   const search = req.params.search;
 let users;
+
   try {
     if(search){
      users = await Subscription.findAll({include: [User],
@@ -97,6 +100,15 @@ let users;
       },
       isDeleted: false,
     }});
+  }else if(req.body.filter){
+    users = await Subscription.findAll({include: [User],
+      where:{
+        name: {
+          [Op.like]: `%${search}%`,
+        },
+        status:req.body.filter,
+        isDeleted: false,
+      }});
   }else{
     users = await Subscription.findAll({include: [User],where:{ isDeleted: false}});
   }
@@ -201,18 +213,3 @@ exports.getSubscriptionPlansDetById = async (req, res) => {
   }
 };
 
-exports.updateSubscriptionStatus = async (req, res) => {
-  const { status } = req.body;
-  const subscriptionId = req.params.id;
-
-  const updateSubscription = await Subscription.update(
-    {
-      status: status,
-    },
-    { where: { id: subscriptionId } }
-  );
-  const updatedSubscriptionValue = await Subscription.findOne({
-    where: { id: subscriptionId },
-  });
-  res.send(updatedSubscriptionValue);
-};
