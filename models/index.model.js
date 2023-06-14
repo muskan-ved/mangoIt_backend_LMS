@@ -60,5 +60,8 @@ db.User.hasMany(db.Subscription, { foreignKey: "user_id" });
 // db.Session.hasMany(db.Module, {foreignKey: 'session_id'});
 // db.Module.belongsTo(db.Session, {foreignKey: 'session_id'})
 
+db.Course.hasMany(db.Enrollcourse, { foreignKey: "course_id" });
+db.Enrollcourse.belongsTo(db.Course, { foreignKey: "course_id" });
+
 //export deb
 module.exports = db;
