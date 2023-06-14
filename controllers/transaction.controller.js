@@ -50,6 +50,19 @@ exports.createTransaction = async (req, res) => {
   }
 };
 
+//get transaction details
+exports.getTransactionDet = async (req, res) => {
+  const order_id = req.params.id;
+  try {
+    const transactionDetails = await Transaction.findOne({
+      where: { order_id: order_id },
+    });
+    res.status(201).json(transactionDetails);
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
 exports.updateTransaction = async (req, res) => {
   const transactionId = req.params.id;
   const { order_id, user_id, payment_method, transaction_id } = req.body;
