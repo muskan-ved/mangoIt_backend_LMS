@@ -308,10 +308,11 @@ exports.getCourseByIdConn = async (req, res) => {
       include: [
         {
           model: Module,
+          where: {is_deleted:false},
           include: [
             {
               model: Session,
-              where: { course_id: courseId },
+              where: { course_id: courseId,is_deleted:false },
             },
           ],
         },
