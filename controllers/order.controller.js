@@ -185,18 +185,18 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
-exports.getOrderByUserId = async (req, res) => {
+exports.getOrderSubscriptionId = async (req, res) => {
   // res.send("all session");
-  const orderId = req.params.id;
+  const subscriptionId = req.params.id;
   try {
-    const orderByUserId = await Order.findAll({
-      where: { user_id: orderId },
+    const OrdersBysubscriptionId = await Order.findAll({
+      where: { subscription_id: subscriptionId },
     });
-    if (orderByUserId) {
-      res.status(200).json(orderByUserId);
+    if (OrdersBysubscriptionId) {
+      res.status(200).json(OrdersBysubscriptionId);
     }
-    if (!orderByUserId) {
-      res.status(404).json("orderId not Found!");
+    if (!OrdersBysubscriptionId) {
+      res.status(404).json("orde not Found!");
     }
   } catch (e) {
     res.status(400).json(e);
