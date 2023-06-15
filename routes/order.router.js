@@ -11,7 +11,7 @@ const {
 const { webProtection } = require("../helper/auth");
 const router = express.Router();
 
-router.get("/getorders", webProtection, getOrdres);
+router.post("/getorders/:searchQuery?", webProtection, getOrdres);
 router.get("/getorder/:id", webProtection, getOrderById);
 router.post("/createorder", webProtection, createOrder);
 router.put("/updateorder/:id", updateOrder);
