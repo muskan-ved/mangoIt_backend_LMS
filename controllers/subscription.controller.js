@@ -89,7 +89,7 @@ exports.getAllSubscription = async (req, res) => {
   const Sequelize = require("sequelize");
   const Op = Sequelize.Op;
   const search = req.params.search;
-let users;
+  let users;
 
   try {
     if(search){
@@ -100,13 +100,10 @@ let users;
       },
       isDeleted: false,
     }});
-  }else if(req.body.filter){
+  }else if(req.body.status !== 'all' && req.body.status){
     users = await Subscription.findAll({include: [User],
       where:{
-        name: {
-          [Op.like]: `%${search}%`,
-        },
-        status:req.body.filter,
+        status:req.body.status,
         isDeleted: false,
       }});
   }else{
