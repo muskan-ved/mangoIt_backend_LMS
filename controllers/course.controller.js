@@ -147,8 +147,6 @@ exports.getCourseById = async (req, res) => {
     //   moduleCountsMap.set(count.course_id, count.moduleCount);
     // });
 
-  
-
     // const sessionCounts = await Session.findAll({
     //   attributes: [
     //     "course_id",
@@ -308,11 +306,11 @@ exports.getCourseByIdConn = async (req, res) => {
       include: [
         {
           model: Module,
-          where: {is_deleted:false},
+          where: { is_deleted: false },
           include: [
             {
               model: Session,
-              where: { course_id: courseId,is_deleted:false },
+              where: { course_id: courseId, is_deleted: false },
             },
           ],
         },
@@ -323,7 +321,10 @@ exports.getCourseByIdConn = async (req, res) => {
       res.status(200).json(courseById);
     }
     if (!courseById) {
-      res.status(404).json("Course not Found!");
+      const courseByIds = await Course.findOne({
+        where: { id: courseId, is_deleted: false },
+      });
+      res.status(200).json(courseByIds);
     }
   } catch (e) {
     res.status(400).json(e);
