@@ -332,6 +332,25 @@ exports.deleteSubscriptionPlan = async (req, res) => {
         where: { id: subscriptionId },
       });
       res.status(201).json(subscriptionDeleted);
+    } 
+  }catch (e) {
+      res.status(400).json(e);
+    }
+  }
+
+exports.getSubscriptionByUserIdLimitOne = async (req, res) => {
+  const subsId = req.params.id;
+  try {
+    const subsById = await Subscription.findOne({
+      where: { user_id: subsId },
+      limit: 1,
+      order: [["createdAt", "DESC"]],
+    });
+    if (subsById) {
+      res.status(200).json(subsById);
+    }
+    if (!subsById) {
+      res.status(404).json("subsId not Found!");
     }
   } catch (e) {
     res.status(400).json(e);

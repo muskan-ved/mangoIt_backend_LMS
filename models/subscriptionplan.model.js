@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       duration_term: {
         type: DataTypes.STRING,
-    },
-    duration_value: {
+      },
+      duration_value: {
         type: DataTypes.INTEGER,
-    },
+      },
       is_deleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       deleted_by: {
         type: DataTypes.STRING,
         defaultValue: false,
-    },
+      },
     },
     {
       sequelize,
