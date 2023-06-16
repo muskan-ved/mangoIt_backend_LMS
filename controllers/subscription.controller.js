@@ -3,7 +3,7 @@ require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Subscription = db.Subscription;
 const subscriptionPlan = db.subscriptionPlan;
-const User = db.User
+const User = db.User;
 
 exports.createSubcsription = async (req, res) => {
   const {
@@ -39,7 +39,17 @@ exports.createSubcsription = async (req, res) => {
 };
 
 exports.updateSubscription = async (req, res) => {
-  const { start_date, status,startDate,duration_value,userId,duration_term ,price,description,name} = req.body;
+  const {
+    start_date,
+    status,
+    startDate,
+    duration_value,
+    userId,
+    duration_term,
+    price,
+    description,
+    name,
+  } = req.body;
   const subscription_id = req.params.id;
 
   const updateSubscription = await Subscription.update(
@@ -50,7 +60,7 @@ exports.updateSubscription = async (req, res) => {
       duration_term: duration_term,
       user_id: userId,
       duration_value: duration_value,
-      start_date: (start_date || startDate),
+      start_date: start_date || startDate,
       status: status,
     },
     { where: { id: subscription_id } }
@@ -134,7 +144,6 @@ exports.getSubscriptionByUserId = async (req, res) => {
 };
 
 exports.getSubscriptionById = async (req, res) => {
-
   const subsId = req.params.id;
   try {
     const subsById = await Subscription.findOne({
@@ -210,3 +219,21 @@ exports.getSubscriptionPlansDetById = async (req, res) => {
   }
 };
 
+exports.getSubscriptionByUserIdLimitOne = async (req, res) => {
+  const subsId = req.params.id;
+  try {
+    const subsById = await Subscription.findOne({
+      where: { user_id: subsId },
+      limit: 1,
+      order: [["createdAt", "DESC"]],
+    });
+    if (subsById) {
+      res.status(200).json(subsById);
+    }
+    if (!subsById) {
+      res.status(404).json("subsId not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
