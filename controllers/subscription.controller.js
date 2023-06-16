@@ -102,33 +102,23 @@ exports.getAllSubscription = async (req, res) => {
   let users;
 
   try {
-    if (search) {
-      users = await Subscription.findAll({
-        include: [User],
-        where: {
-          name: {
-            [Op.like]: `%${search}%`,
-          },
-          isDeleted: false,
-        },
-      });
-    } else if (req.body.filter) {
-      users = await Subscription.findAll({
-        include: [User],
-        where: {
-          name: {
-            [Op.like]: `%${search}%`,
-          },
-          status: req.body.filter,
-          isDeleted: false,
-        },
-      });
-    } else {
-      users = await Subscription.findAll({
-        include: [User],
-        where: { isDeleted: false },
-      });
-    }
+    if(search){
+     users = await Subscription.findAll({include: [User],
+    where:{
+      name: {
+        [Op.like]: `%${search}%`,
+      },
+      isDeleted: false,
+    }});
+  }else if(req.body.status !== 'all' && req.body.status){
+    users = await Subscription.findAll({include: [User],
+      where:{
+        status:req.body.status,
+        isDeleted: false,
+      }});
+  }else{
+    users = await Subscription.findAll({include: [User],where:{ isDeleted: false}});
+  }
     res.status(200).json(users);
   } catch (e) {
     res.status(400).json(e);
