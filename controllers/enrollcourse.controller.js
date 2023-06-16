@@ -278,11 +278,11 @@ exports.getCourseByUser = async (req, res) => {
       /////////////////////////////////////////////////
       const combinedArray = getEnrollData.map((course) => {
         const sessionCount = sessionCounts.filter((count) =>
-		count.course_id !== course.course_id
-		? count.sessionCount
-		: { sessionCount: 0 }
+          count.course_id !== course.course_id
+            ? count.sessionCount
+            : { sessionCount: 0 }
         );
-		console.log("sessionCountsessionCount", sessionCount)
+        console.log("sessionCountsessionCount", sessionCount);
         const moduleCount = moduleCounts.filter((count) =>
           count.course_id !== course.course_id
             ? count.moduleCount
@@ -459,4 +459,252 @@ exports.getTopenrolledCourses = async (req, res) => {
   } catch (e) {
     res.status(400).json(e);
   }
+};
+
+exports.updateEnrollMark = async (req, res) => {
+  const { user_id, course_id, module_id, session_id, status } = req.body;
+  try {
+    if (!user_id && !course_id) {
+      res.status(404).json("All field are required!");
+    } else {
+      const updateEnroll = await Enrollcourse.findOne({
+        where: { user_id: user_id, course_id: course_id, course_type: status },
+      });
+      if (updateEnroll) {
+        const updateEnl = await Enrollcourse.update(
+          { mark_compelete: 1 },
+          { where: { id: updateEnroll.id } }
+        );
+        res.status(201).json("Course view 100%");
+      } else {
+        console.log("something went wrong");
+      }
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.getEnrolledCourseByUser = async (req, res) => {
+  const user_id = req.params.id;
+  try {
+    const getEnrollData = await Enrollcourse.findAll({
+      where: { user_id: user_id, is_deleted: false, mark_compelete: 0 },
+      limit: 8,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: Course,
+        },
+      ],
+    });
+    const moduleCounts = await Module.findAll({
+      where: { is_deleted: false },
+      attributes: [
+        "course_id",
+        [Sequelize.fn("COUNT", Sequelize.col("course_id")), "moduleCount"],
+      ],
+      group: ["course_id"],
+    });
+    const moduleCountsMap = new Map();
+    moduleCounts.forEach((count) => {
+      moduleCountsMap.set(count.course_id, count.moduleCount);
+    });
+
+    const sessionCounts = await Session.findAll({
+      where: { is_deleted: false },
+      attributes: [
+        "course_id",
+        [Sequelize.fn("COUNT", Sequelize.col("course_id")), "sessionCount"],
+      ],
+      group: ["course_id"],
+    });
+    const sessionCountsMap = new Map();
+    sessionCounts.forEach((count) => {
+      sessionCountsMap.set(count.course_id, count.sessionCount);
+    });
+    ////////////////////////////////////////////////
+    const enrollCourse = await Enrollcourse.findAll({
+      where: { user_id: user_id },
+    });
+
+    let getEnrollData1;
+    const courseIdCounts = {};
+    for (let i = 0; i < enrollCourse.length; i++) {
+      getEnrollData1 = enrollCourse[i].view_history;
+      if (getEnrollData1 !== null) {
+        getEnrollData1.map((ea) => {
+          Object.assign(ea, { courseId: enrollCourse[i].course_id });
+        });
+
+        getEnrollData1.forEach((obj) => {
+          const courseId = obj["courseId"];
+          if (!courseIdCounts[courseId]) {
+            courseIdCounts[courseId] = 0;
+          }
+          for (const key in obj) {
+            if (key !== "courseId") {
+              courseIdCounts[courseId] += obj[key].length;
+            }
+          }
+        });
+      } else {
+        console.log("empty");
+      }
+    }
+
+    /////////////////////////////////////////////////
+    const combinedArray = getEnrollData.map((course) => {
+      const sessionCount = sessionCounts.filter((count) =>
+        count.course_id !== course.course_id
+          ? count.sessionCount
+          : { sessionCount: 0 }
+      );
+      const moduleCount = moduleCounts.filter((count) =>
+        count.course_id !== course.course_id
+          ? count.moduleCount
+          : { moduleCount: 0 }
+      );
+      return {
+        course,
+        courseIdCounts: courseIdCounts,
+        sessionCount: sessionCount,
+        moduleCount: moduleCount,
+      };
+    });
+    if (combinedArray) {
+      res.status(200).json(combinedArray);
+    }
+    if (!combinedArray) {
+      res.status(404).json("User Id not Found!");
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+
+  // try {
+  //   const getEnrollData = await Enrollcourse.findAll({
+  //     where: { user_id: user_id, is_deleted: false },
+  //     include: [
+  //       {
+  //         model: Course,
+  //       },
+  //     ],
+  //   });
+
+  //   const moduleCounts = await Module.findAll({
+  //     where: { is_deleted: false },
+  //     attributes: [
+  //       "course_id",
+  //       [Sequelize.fn("COUNT", Sequelize.col("course_id")), "moduleCount"],
+  //     ],
+  //     group: ["course_id"],
+  //   });
+  //   const moduleCountsMap = new Map();
+  //   moduleCounts.forEach((count) => {
+  //     moduleCountsMap.set(count.course_id, count.moduleCount);
+  //   });
+
+  //   const sessionCounts = await Session.findAll({
+  //     where: { is_deleted: false },
+  //     attributes: [
+  //       "course_id",
+  //       [Sequelize.fn("COUNT", Sequelize.col("course_id")), "sessionCount"],
+  //     ],
+  //     group: ["course_id"],
+  //   });
+  //   const sessionCountsMap = new Map();
+  //   sessionCounts.forEach((count) => {
+  //     sessionCountsMap.set(count.course_id, count.sessionCount);
+  //   });
+  //   ////////////////////////////////////////////////
+  //   const enrollCourse = await Enrollcourse.findAll({
+  //     where: { user_id: user_id },
+  //   });
+
+  //   let getEnrollData1;
+  //   var getEnroll;
+  //   const courseIdCounts = {};
+  //   for (let i = 0; i < enrollCourse.length; i++) {
+  //     getEnrollData1 = enrollCourse[i].view_history;
+  //     getEnroll = enrollCourse[i].view_history;
+  //     // if (getEnrollData1 !== null) {
+  //     //   getEnrollData1.map((ea) => {
+  //     //     Object.assign(ea, { courseId: enrollCourse[i].course_id });
+  //     //   });
+
+  //     // getEnrollData1.forEach((obj) => {
+  //     //   const courseId = obj["courseId"];
+  //     //   if (!courseIdCounts[courseId]) {
+  //     //     courseIdCounts[courseId] = 0;
+  //     //   }
+  //     //   for (const key in obj) {
+  //     //     if (key !== "courseId") {
+  //     //       courseIdCounts[courseId] += obj[key].length;
+  //     //     }
+  //     //   }
+  //     // });
+  //     // } else {
+  //     //   console.log("empty");
+  //     // }
+  //   }
+  //   var valueCount = 0;
+  //   let element1;
+
+  //   /////////////////////////////////////////////////
+  //   const combinedArray = getEnrollData.map((course) => {
+  //     const sessionCount = sessionCounts.filter((count) =>
+  //       count.course_id !== course.course_id
+  //         ? count.sessionCount
+  //         : { sessionCount: 0 }
+  //     );
+  //     const moduleCount = moduleCounts.filter((count) =>
+  //       count.course_id !== course.course_id
+  //         ? count.moduleCount
+  //         : { moduleCount: 0 }
+  //     );
+
+  //     for (let i = 0; i < sessionCount.length; i++) {
+  //       const element = sessionCount[i].dataValues.sessionCount;
+  //       console.log("@@@@@@@@@@@@@@", element);
+
+  //       // if (course.id === 1) {
+  //       //   console.log(
+  //       //     element,
+  //       //     "coursecourse",
+  //       //     course.view_history,
+  //       //     "coooooid",
+  //       //     course.id
+  //       //   );
+  //       //   return {
+  //       //     course: course,
+  //       //     courseIdCounts: courseIdCounts,
+  //       //     sessionCount: sessionCount,
+  //       //     moduleCount: moduleCount,
+  //       //   };
+  //       // }
+  //     }
+  //     for (let j = 0; j < enrollCourse.length; j++) {
+  //       element1 = enrollCourse[j].view_history;
+  //       for (var i = 0; i < element1.length; i++) {
+  //         var dictionary = element1[i];
+  //         var values = Object.values(dictionary);
+  //         for (var k = 0; k < values.length; k++) {
+  //           valueCount += values[k].length;
+  //         }
+  //       }
+  //       console.log("valueCountvalueCount", valueCount);
+  //       valueCount = 0;
+  //     }
+  //   });
+
+  //   if (combinedArray) {
+  //     res.status(200).json(combinedArray);
+  //   }
+  //   if (!combinedArray) {
+  //     res.status(404).json("User Id not Found!");
+  //   }
+  // } catch (e) {
+  //   res.status(400).json(e);
+  // }
 };
