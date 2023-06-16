@@ -7,57 +7,46 @@ const Subscription = db.Subscription;
 
 exports.getOrdres = async (req, res) => {
   const Sequelize = require("sequelize");
-  const Op = Sequelize.Op;
   const searchQuery = req.params.searchQuery;
   let orders;
-  // try {
-  //   const orders = await Order.findAll({ include: [Subscription,User],where: { is_deleted: false } });
-  //   res.status(200).json(orders);
-  // } catch (e) {
-  //   res.status(400).json(e);
-  // }
-console.log("first",searchQuery)
+
   try {
-    if(searchQuery){
-      console.log("iffffffffffffffffff")
-     orders = await Order.findAll({
-      include: [
-
-
-        {
-          model: Subscription,
-          
-        },
-        {
-          model: User,
-          where: {
-            [Sequelize.Op.or]:[
-              Sequelize.literal(`CONCAT(first_name, ' ', last_name) LIKE '%${searchQuery}%'`),
-            ],
+    if (searchQuery) {
+      orders = await Order.findAll({
+        include: [
+          {
+            model: Subscription,
           },
-     
+          {
+            model: User,
+            where: {
+              [Sequelize.Op.or]: [
+                Sequelize.literal(
+                  `CONCAT(first_name, ' ', last_name) LIKE '%${searchQuery}%'`
+                ),
+              ],
+            },
+          },
+        ],
+
+        where: {
+          is_deleted: false,
         },
-      ],
-     
-      where: {
-        is_deleted: false,
-      }
-    })
-
-    
-  }else if(req.body.status !== 'all' && req.body.status){
-    console.log("else       iffffffffffffffffff")
-
-    orders = await Order.findAll({include: [Subscription,User],
-      where:{
-        status:req.body.status,
-        is_deleted: false,
-      }});
-  }else{
-    console.log("elseeeeeeeeeeeeeeeeeeeeeee")
-
-    orders = await Order.findAll({include: [Subscription,User],where:{ is_deleted: false}});
-  }
+      });
+    } else if (req.body.status !== "all" && req.body.status) {
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: {
+          status: req.body.status,
+          is_deleted: false,
+        },
+      });
+    } else {
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: { is_deleted: false },
+      });
+    }
     res.status(200).json(orders);
   } catch (e) {
     res.status(400).json(e);
