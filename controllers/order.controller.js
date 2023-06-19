@@ -3,11 +3,50 @@ require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Order = db.Order;
 const User = db.User;
+const Subscription = db.Subscription;
 
 exports.getOrdres = async (req, res) => {
-  // res.send('all orders')
+  const Sequelize = require("sequelize");
+  const searchQuery = req.params.searchQuery;
+  let orders;
+
   try {
-    const orders = await Order.findAll({ where: { is_deleted: false } });
+    if (searchQuery) {
+      orders = await Order.findAll({
+        include: [
+          {
+            model: Subscription,
+          },
+          {
+            model: User,
+            where: {
+              [Sequelize.Op.or]: [
+                Sequelize.literal(
+                  `CONCAT(first_name, ' ', last_name) LIKE '%${searchQuery}%'`
+                ),
+              ],
+            },
+          },
+        ],
+
+        where: {
+          is_deleted: false,
+        },
+      });
+    } else if (req.body.status !== "all" && req.body.status) {
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: {
+          status: req.body.status,
+          is_deleted: false,
+        },
+      });
+    } else {
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: { is_deleted: false },
+      });
+    }
     res.status(200).json(orders);
   } catch (e) {
     res.status(400).json(e);
@@ -135,18 +174,18 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
-exports.getOrderByUserId = async (req, res) => {
+exports.getOrderSubscriptionId = async (req, res) => {
   // res.send("all session");
-  const orderId = req.params.id;
+  const subscriptionId = req.params.id;
   try {
-    const orderByUserId = await Order.findAll({
-      where: { user_id: orderId },
+    const OrdersBysubscriptionId = await Order.findAll({
+      where: { subscription_id: subscriptionId },
     });
-    if (orderByUserId) {
-      res.status(200).json(orderByUserId);
+    if (OrdersBysubscriptionId) {
+      res.status(200).json(OrdersBysubscriptionId);
     }
-    if (!orderByUserId) {
-      res.status(404).json("orderId not Found!");
+    if (!OrdersBysubscriptionId) {
+      res.status(404).json("orde not Found!");
     }
   } catch (e) {
     res.status(400).json(e);
