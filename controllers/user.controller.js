@@ -391,7 +391,7 @@ exports.resetPassword = async (req, res) => {
 
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
     const user_id = decode.id;
-    console.log(user_id);
+    // console.log(user_id);
     const findUser = await User.findOne({
       where: { id: user_id, is_deleted: false },
     });
