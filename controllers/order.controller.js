@@ -12,7 +12,6 @@ const Subscription = db.Subscription;
 
 exports.getOrdres = async (req, res) => {
   const Sequelize = require("sequelize");
-  const Op = Sequelize.Op;
   const searchQuery = req.params.searchQuery;
   let orders;
   // try {

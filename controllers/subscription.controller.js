@@ -3,7 +3,7 @@ const db = require("../models/index.model");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const Subscription = db.Subscription;
-const subscriptionPlan = db.subscriptionPlan;
+const SubscriptionPlan = db.SubscriptionPlan;
 const User = db.User;
 
 exports.createSubcsription = async (req, res) => {
@@ -17,10 +17,6 @@ exports.createSubcsription = async (req, res) => {
     duration_term,
     duration_value,
   } = req.body;
-
-  // const token = req.headers.logintoken;
-  // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-  // const created_by = decode.id;
 
   try {
     const createSubscription = await Subscription.create({
@@ -225,19 +221,38 @@ exports.getSubscriptionSearchByUserId = async (req, res) => {
 };
 
 exports.getSubscriptionPlans = async (req, res) => {
-  const sequelize = require("sequelize");
+  const Sequelize = require("sequelize");
+  const Op = Sequelize.Op;
+  const search = req.params.search;
+  let users;
+  console.log("first");
   try {
-    const users = await subscriptionPlan.findAll({});
+    if (search) {
+      users = await SubscriptionPlan.findAll({
+        include: [User],
+        where: {
+          title: {
+            [Op.like]: `%${search}%`,
+          },
+          is_deleted: false,
+        },
+      });
+    } else {
+      users = await SubscriptionPlan.findAll({
+        include: [User],
+        where: { is_deleted: false },
+      });
+    }
     res.status(200).json(users);
   } catch (e) {
-    res.status(400).json(e);
+    res.status(400).json(e.message);
   }
 };
 
 exports.getSubscriptionPlansDetById = async (req, res) => {
   try {
-    const subsById = await subscriptionPlan.findOne({
-      where: { id: req.params.id },
+    const subsById = await SubscriptionPlan.findOne({
+      where: { id: req.params.id,is_deleted: false},
     });
     if (subsById) {
       res.status(200).json(subsById);
@@ -249,6 +264,103 @@ exports.getSubscriptionPlansDetById = async (req, res) => {
     res.status(400).json(e);
   }
 };
+
+exports.createSubcsriptionPlan = async (req, res) => {
+  const { title, amount,duration_term,duration_value } = req.body;
+
+  const checkTitleExistOrNot = await SubscriptionPlan.findAll({
+    where: { title,is_deleted: false},
+  });
+  const token = req.headers.logintoken;
+  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+  const created_by = decode.id;
+  console.log(created_by,"created_by")
+
+  try {
+    if (checkTitleExistOrNot?.length > 0) {
+      res.status(400).json({ message: `'${title}' title already exists` });
+    } else {
+      const createSubscriptionPlan = await SubscriptionPlan.create({
+        title,
+        amount,
+        duration_term,
+        duration_value,
+        user_id: created_by,
+      });
+      res.status(201).json(createSubscriptionPlan);
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.updateSubscriptionPlan = async (req, res) => {
+  const { title, amount,duration_term,duration_value } = req.body;
+
+  const subscriptionPlan_id = req.params.id;
+  let checkTitleExistOrNot;
+  if(title){
+   checkTitleExistOrNot = await SubscriptionPlan.findAll({
+    where: { title,is_deleted: false },
+    
+  });
+}
+
+  const token = req.headers.logintoken;
+  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+  const updated_by = decode.id;
+console.log(checkTitleExistOrNot,"checkTitleExistOrNot")
+  try {
+    if (checkTitleExistOrNot?.length > 0 && checkTitleExistOrNot[0].dataValues.id !== parseInt(subscriptionPlan_id)) {
+      res.status(400).json({ message: `'${title}' title already exists` });
+    } else {
+      await SubscriptionPlan.update(
+        {
+          title,
+          amount,
+          duration_term,
+          duration_value,
+          user_id: updated_by,
+        },
+        { where: { id: subscriptionPlan_id } }
+      );
+      const updatedSubscriptionPlanValue = await SubscriptionPlan.findOne({
+        where: { id: subscriptionPlan_id },
+      });
+      res.status(201).send(updatedSubscriptionPlanValue);
+    }
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
+
+exports.deleteSubscriptionPlan = async (req, res) => {
+  const subscriptionId = req.params.id;
+
+  const token = req.headers.logintoken;
+  const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+  const deletedBy = decode.id;
+
+  try {
+    const is_Deleted = await SubscriptionPlan.findOne({
+      where: { id: subscriptionId },
+    });
+    if(!is_Deleted){
+    res.status(400).json({message:"Plan not found"});
+    }else{
+      await SubscriptionPlan.update(
+        { is_deleted: true, deleted_by: deletedBy },
+        { where: { id: subscriptionId } }
+      );
+      const subscriptionDeleted = await SubscriptionPlan.findOne({
+        where: { id: subscriptionId },
+      });
+      res.status(201).json(subscriptionDeleted);
+    } 
+  }catch (e) {
+      res.status(400).json(e);
+    }
+  }
 
 exports.getSubscriptionByUserIdLimitOne = async (req, res) => {
   const subsId = req.params.id;
@@ -262,7 +374,7 @@ exports.getSubscriptionByUserIdLimitOne = async (req, res) => {
       res.status(200).json(subsById);
     }
     if (!subsById) {
-      res.status(404).json("subsId not Found!");
+      res.status(201).json("subsId not Found!");
     }
   } catch (e) {
     res.status(400).json(e);
