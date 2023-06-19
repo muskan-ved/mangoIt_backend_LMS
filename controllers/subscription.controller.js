@@ -231,7 +231,7 @@ exports.getSubscriptionByUserIdLimitOne = async (req, res) => {
       res.status(200).json(subsById);
     }
     if (!subsById) {
-      res.status(404).json("subsId not Found!");
+      res.status(201).json("subsId not Found!");
     }
   } catch (e) {
     res.status(400).json(e);
