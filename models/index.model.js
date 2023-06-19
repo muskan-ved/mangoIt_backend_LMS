@@ -68,5 +68,11 @@ db.User.hasMany(db.Order, { foreignKey: "user_id" });
 db.Course.hasMany(db.Enrollcourse, { foreignKey: "course_id" });
 db.Enrollcourse.belongsTo(db.Course, { foreignKey: "course_id" });
 
+db.Order.hasMany(db.Transaction, { foreignKey: "order_id" });
+db.Transaction.belongsTo(db.Order, { foreignKey: "order_id" });
+
+db.User.hasMany(db.Transaction, { foreignKey: "user_id" });
+db.Transaction.belongsTo(db.User, { foreignKey: "user_id" });
+
 //export deb
 module.exports = db;

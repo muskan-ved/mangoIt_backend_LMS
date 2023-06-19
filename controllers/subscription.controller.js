@@ -1,3 +1,4 @@
+const { ReplaceEmailTemplate } = require("../common/commonfunctions");
 const db = require("../models/index.model");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
@@ -33,6 +34,29 @@ exports.createSubcsription = async (req, res) => {
       duration_value: duration_value,
     });
     res.status(201).json(createSubscription);
+
+    //send emails
+    const SubscriptoionEmailTemp = await GetEmailTemplates(
+      (emailtype = "subscription_purchase")
+    );
+
+    var translations = {
+      customername: "",
+      loginurl: process.env.REACTURL,
+      amount: Getinvoice[0]?.amount,
+    };
+
+    const translatedHtml = await ReplaceEmailTemplate(
+      translations,
+      InvoiceTemp[0].emailbodytext
+    );
+    sendEmails(
+      Getinvoice[0].email1,
+      InvoiceTemp[0].enailsubject,
+      translatedHtml,
+      (title = "INVOICE")
+    );
+    
   } catch (e) {
     res.status(400).json(e);
   }
@@ -102,23 +126,30 @@ exports.getAllSubscription = async (req, res) => {
   let users;
 
   try {
-    if(search){
-     users = await Subscription.findAll({include: [User],
-    where:{
-      name: {
-        [Op.like]: `%${search}%`,
-      },
-      isDeleted: false,
-    }});
-  }else if(req.body.status !== 'all' && req.body.status){
-    users = await Subscription.findAll({include: [User],
-      where:{
-        status:req.body.status,
-        isDeleted: false,
-      }});
-  }else{
-    users = await Subscription.findAll({include: [User],where:{ isDeleted: false}});
-  }
+    if (search) {
+      users = await Subscription.findAll({
+        include: [User],
+        where: {
+          name: {
+            [Op.like]: `%${search}%`,
+          },
+          isDeleted: false,
+        },
+      });
+    } else if (req.body.status !== "all" && req.body.status) {
+      users = await Subscription.findAll({
+        include: [User],
+        where: {
+          status: req.body.status,
+          isDeleted: false,
+        },
+      });
+    } else {
+      users = await Subscription.findAll({
+        include: [User],
+        where: { isDeleted: false },
+      });
+    }
     res.status(200).json(users);
   } catch (e) {
     res.status(400).json(e);

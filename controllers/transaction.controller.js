@@ -1,8 +1,10 @@
 const db = require("../models/index.model");
 require("dotenv").config();
+const fs = require("fs");
 const jsonwebtoken = require("jsonwebtoken");
+const { GetTransactionsDetails } = require("../common/commonfunctions");
+const { GenerateReceipt } = require("../helper/templates/receipttemplate");
 const Transaction = db.Transaction;
-const User = db.User;
 
 exports.createTransaction = async (req, res) => {
   const {
@@ -112,4 +114,45 @@ exports.deleteTransaction = async (req, res) => {
   } catch (e) {
     res.status(400).json(e);
   }
+};
+
+//download payment receipr
+exports.DownloadReceiptUsingTRXIdAfterPay = async (req, res) => {
+  const { transactionId } = req.body;
+  //get  tranaction  details
+  const InvoiceTrxDet = await GetTransactionsDetails(transactionId);
+  const trxdetls = {
+    transactionId: InvoiceTrxDet?.dataValues?.id,
+    OrderId: InvoiceTrxDet?.dataValues?.order_id,
+    userId: InvoiceTrxDet?.dataValues?.user_id,
+    transactionamount: InvoiceTrxDet?.dataValues?.trx_amount,
+    paymentmethod: InvoiceTrxDet?.dataValues?.payment_method,
+    transactiodate: InvoiceTrxDet?.dataValues?.createdAt,
+    subscriptionname: InvoiceTrxDet?.order?.subscription?.name,
+    subscriptionduration: InvoiceTrxDet?.order?.subscription?.duration_term,
+    subscriptiondurationvalue:
+      InvoiceTrxDet?.order?.subscription?.duration_value,
+    subscriptionstartdate: InvoiceTrxDet?.order?.subscription?.start_date,
+    orderdate: InvoiceTrxDet?.order?.createdAt,
+    username:
+      InvoiceTrxDet?.user?.first_name +
+      "" +
+      "" +
+      InvoiceTrxDet?.user?.last_name,
+  };
+  var filePath = `receiptspdf/${"customer-"}${transactionId}.pdf`;
+  fs.access(filePath, fs.constants.F_OK, async (err) => {
+    if (err) {
+      //create invoice pdf
+      //if receipt not exists in the folder so, create
+      await GenerateReceipt(trxdetls);
+      setTimeout(() => {
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+      }, 1000);
+    } else {
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    }
+  });
 };

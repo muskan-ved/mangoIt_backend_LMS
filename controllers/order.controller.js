@@ -1,6 +1,11 @@
 const db = require("../models/index.model");
+const fs = require("fs");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
+const { GetOrderDetails } = require("../common/commonfunctions");
+const {
+  GenerateInvoicePdf,
+} = require("../helper/templates/orderinvoicetemplate");
 const Order = db.Order;
 const User = db.User;
 const Subscription = db.Subscription;
@@ -16,48 +21,48 @@ exports.getOrdres = async (req, res) => {
   // } catch (e) {
   //   res.status(400).json(e);
   // }
-console.log("first",searchQuery)
   try {
-    if(searchQuery){
-      console.log("iffffffffffffffffff")
-     orders = await Order.findAll({
-      include: [
-
-
-        {
-          model: Subscription,
-          
-        },
-        {
-          model: User,
-          where: {
-            [Sequelize.Op.or]:[
-              Sequelize.literal(`CONCAT(first_name, ' ', last_name) LIKE '%${searchQuery}%'`),
-            ],
+    if (searchQuery) {
+      console.log("iffffffffffffffffff");
+      orders = await Order.findAll({
+        include: [
+          {
+            model: Subscription,
           },
-     
+          {
+            model: User,
+            where: {
+              [Sequelize.Op.or]: [
+                Sequelize.literal(
+                  `CONCAT(first_name, ' ', last_name) LIKE '%${searchQuery}%'`
+                ),
+              ],
+            },
+          },
+        ],
+
+        where: {
+          is_deleted: false,
         },
-      ],
-     
-      where: {
-        is_deleted: false,
-      }
-    })
+      });
+    } else if (req.body.status !== "all" && req.body.status) {
+      console.log("else       iffffffffffffffffff");
 
-    
-  }else if(req.body.status !== 'all' && req.body.status){
-    console.log("else       iffffffffffffffffff")
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: {
+          status: req.body.status,
+          is_deleted: false,
+        },
+      });
+    } else {
+      console.log("elseeeeeeeeeeeeeeeeeeeeeee");
 
-    orders = await Order.findAll({include: [Subscription,User],
-      where:{
-        status:req.body.status,
-        is_deleted: false,
-      }});
-  }else{
-    console.log("elseeeeeeeeeeeeeeeeeeeeeee")
-
-    orders = await Order.findAll({include: [Subscription,User],where:{ is_deleted: false}});
-  }
+      orders = await Order.findAll({
+        include: [Subscription, User],
+        where: { is_deleted: false },
+      });
+    }
     res.status(200).json(orders);
   } catch (e) {
     res.status(400).json(e);
@@ -229,4 +234,40 @@ exports.createOrderforRenewSubscriptio = async (req, res) => {
   } catch (e) {
     res.status(400).json(e);
   }
+};
+
+exports.DownloadOrderInvoice = async (req, res) => {
+  const { orderId } = req.body;
+  //get order details details
+  const getOrderDetails = await GetOrderDetails(orderId);
+  const orderdet = {
+    orderId: getOrderDetails?.dataValues?.id,
+    userId: getOrderDetails?.dataValues?.user_id,
+    orderamount: getOrderDetails?.dataValues?.amount,
+    orderstatus: getOrderDetails?.dataValues?.status,
+    orderdate: getOrderDetails?.dataValues?.createdAt,
+    subscriptionname: getOrderDetails?.subscription?.dataValues?.name,
+    subscriptiondyrationterm:
+      getOrderDetails?.subscription?.dataValues?.duration_term,
+    subscriptiondyrationvalue:
+      getOrderDetails?.subscription?.dataValues?.duration_value,
+    username:
+      getOrderDetails?.user?.dataValues?.first_name +
+      getOrderDetails?.user?.dataValues?.last_name,
+  };
+  var filePath = `invoicespdf/${"customer-"}${orderId}.pdf`;
+  fs.access(filePath, fs.constants.F_OK, async (err) => {
+    if (err) {
+      //if invoice not exists in the forlder so, create invoice
+      //generate admin side invoice pdf
+      await GenerateInvoicePdf(orderdet);
+      setTimeout(() => {
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+      }, 1000);
+    } else {
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    }
+  });
 };
