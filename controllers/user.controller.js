@@ -9,6 +9,8 @@ require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const db = require("../models/index.model");
 const { capitalizeFirstLetter } = require("../helper/help");
+const { generateHashPass } = require("../helper/generatePassword");
+const sendEmails = require("../helper/sendMails");
 const User = db.User;
 const EmailManage = db.EmailManage;
 
@@ -116,17 +118,91 @@ exports.registration = async (req, res) => {
     role_id,
     profile_pic,
     loggedin_by,
+    identifier,
   } = req.body;
-  const checkToken = req.headers.logintoken;
 
-  if (!checkToken) {
+  const checkToken = req.headers.logintoken;
+  if (email && identifier === "admin_logged_in") {
+    const checkToken = req.headers.logintoken;
+    // console.log('logged in')
+    // const token = req.headers.logintoken;
+    // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
+    // const login_user = decode.id;
+    // console.log(login_user)
+    // const findLoginUser = await User.findOne({
+    //   where: { id: login_user, is_deleted: false },
+    // });
+
+    // if (findLoginUser.role_id == 1) 
+    // {
+    // admin reg for learner
+    // if (!email) {
+    //   res.status(400).json("Email is Required!");
+    // }
+
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
     });
-    if (
-      (email && loggedin_by === "facebook") ||
-      (email && loggedin_by === "google")
-    ) {
+    if (findUser) {
+      res.status(400).json("Email already Registered!");
+    }
+
+    if (!findUser) {
+      const genPass = JSON.parse(await generateHashPass());
+      const user = await User.create({
+        first_name: first_name,
+        last_name: last_name,
+        email: email,
+        password: genPass.encPass,
+        role_id: role_id,
+        // created_by: login_user,
+      });
+
+      const findEmailSendingData = await EmailManage.findOne({
+        where: { emailtype: 'user_registration' },
+      });
+      
+      let contentData = findEmailSendingData.dataValues.emailbodytext
+      .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
+      .replace("{{email}}", email)
+      .replace("{{password}}",genPass.pass);
+    
+
+      const send = require("gmail-send")({
+        user: findEmailSendingData.emailfrom,
+        pass: process.env.EMAIL_PASS,
+        to: email,
+        subject: findEmailSendingData.emailsubject,
+        // replyTo: "devendramangoit@gmail.com",
+      });
+      // const filepath = req.file.path;
+      try {
+        const { result, full } = await send({
+          html: `${contentData}`,
+            //   <p>Your account has been created successfully!</p>
+            //   <br>
+            //   <br>
+            //   Your login pasword is ${genPass.pass}
+            //   All free courses are available to you or you will be able to enroll in all paid courses after subscribing 
+            //   <a href="https://mangoit-lms.mangoitsol.com/login/" style="color:#22489e"> Login </a>
+            //  <span> 	<p>Thanks & Regards,</p>
+            //  <p style="color:#E8661B">MangoIT Solutions</p>
+            //  <p> Email : mangoitsols@gmail.com</span>`,
+          // files: [filepath]
+        }); 
+      } catch (error) {
+        res.json(error);
+      }
+      res.status(201).json(user);
+    }
+    // }
+  }
+  else {
+    // console.log('not logged in')
+    const findUser = await User.findOne({
+      where: { email: email, is_deleted: false },
+    });
+    if ((email && loggedin_by === "facebook") || (email && loggedin_by === "google")) {
       //  return res.send('fb or google')
 
       if (findUser !== null) {
@@ -180,50 +256,29 @@ exports.registration = async (req, res) => {
           ),
           role_id: role_id,
         });
+
+        const findEmailSendingData = await EmailManage.findOne({
+          where: { emailtype: 'user_registration' },
+        });
+        
+        let contentData = findEmailSendingData.dataValues.emailbodytext
+        .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
+        .replace("{{email}}", email)
+        .replace("{{password}}",password);
+
+        sendEmails(findEmailSendingData.emailfrom, email, findEmailSendingData.emailsubject,contentData)
         return res.status(201).json(user);
       }
     }
   }
 
-  if (checkToken) {
-    const token = req.headers.logintoken;
-    const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-    const login_user = decode.id;
-    // console.log(login_user)
-    const findLoginUser = await User.findOne({
-      where: { id: login_user, is_deleted: false },
-    });
 
-    if (findLoginUser.role_id == 1) {
-      // admin reg for learner
-      if (!email || !password) {
-        res.status(400).json("Email and Password Required!");
-      }
-
-      const findUser = await User.findOne({
-        where: { email: email, is_deleted: false },
-      });
-      if (findUser) {
-        res.status(400).json("Email already Registered!");
-      }
-
-      if (!findUser) {
-        const user = await User.create({
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
-          password: await hashPassword(password),
-          role_id: role_id,
-          created_by: login_user,
-        });
-        res.status(201).json(user);
-      }
-    }
-  }
 };
 
 exports.loginUser = async (req, res) => {
   const { email, password, identifier } = req.body;
+
+  console.log(req.body)
 
   if (email && identifier === "userautologinwithemail") {
     const user = await User.findOne({
@@ -357,42 +412,37 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.sendGmail = async (req, res) => {
-  const { to, cc, subject } = req.body;
+  const { to, emailType } = req.body;
 
   const findUser = await User.findOne({
     where: { email: to, is_deleted: false },
   });
 
   const findEmailSendingData = await EmailManage.findOne({
-    where: { emailtype: "forgot_password" },
+    where: { emailtype: emailType },
   });
 
   let result = findEmailSendingData.dataValues.emailbodytext.replace(
     "{{username}}",
-    `${capitalizeFirstLetter(findUser && findUser?.first_name)} ${
-      findUser && findUser?.last_name
+    `${capitalizeFirstLetter(findUser && findUser?.first_name)} ${findUser && findUser?.last_name
     }`
   );
 
-  console.log(findEmailSendingData.dataValues, "33333", result, findUser);
   if (!findUser) {
     return res.status(400).json("this email is not register with us!");
   }
 
   if (findUser) {
     const send = require("gmail-send")({
-      user: process.env.EMAIL,
+      user: findEmailSendingData.emailfrom,
       pass: process.env.EMAIL_PASS,
       to,
-      cc,
-      subject,
-      // replyTo: "devendramangoit@gmail.com",
+      subject: findEmailSendingData.emailsubject,
     });
 
     // const filepath = req.file.path;
 
     try {
-      // console.log(findUser,"44444444444444444444")
       const { full } = await send({
         html: `${result}`,
         // files: [filepath],
