@@ -9,6 +9,8 @@ require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
 const db = require("../models/index.model");
 const { capitalizeFirstLetter } = require("../helper/help");
+const { generateHashPass } = require("../helper/generatePassword");
+const sendEmails = require("../helper/sendMails");
 const User = db.User;
 const EmailManage = db.EmailManage;
 
@@ -117,8 +119,8 @@ exports.registration = async (req, res) => {
     profile_pic,
     loggedin_by,
   } = req.body;
-  const checkToken = req.headers.logintoken;
 
+  const checkToken = req.headers.logintoken;
   if (!checkToken) {
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
@@ -196,8 +198,8 @@ exports.registration = async (req, res) => {
 
     if (findLoginUser.role_id == 1) {
       // admin reg for learner
-      if (!email || !password) {
-        res.status(400).json("Email and Password Required!");
+      if (!email) {
+        res.status(400).json("Email is Required!");
       }
 
       const findUser = await User.findOne({
@@ -208,14 +210,48 @@ exports.registration = async (req, res) => {
       }
 
       if (!findUser) {
+        const genPass = JSON.parse(await generateHashPass());   
         const user = await User.create({
           first_name: first_name,
           last_name: last_name,
           email: email,
-          password: await hashPassword(password),
+          password: genPass.encPass ,
           role_id: role_id,
           created_by: login_user,
         });
+     
+       
+          const send = require("gmail-send")({
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASS,
+            to: email,
+            cc,
+            subject: 'User Registered by Email admin',
+            // replyTo: "devendramangoit@gmail.com",
+          });
+      
+          // const filepath = req.file.path;
+      
+          try {
+            // console.log(findUser,"44444444444444444444")
+            const { result, full } = await send({
+              html: `<p>Hi ${capitalizeFirstLetter(user.first_name)} ${user.last_name
+                },</p>
+              <p>There was a request to change your password!
+            <span>If you did not make this request then please ignore this email.</span></p>
+              <p>Otherwise, please click this link to change your password: <a href="
+              https://mangoit-lms.mangoitsol.com/resetpassword/"> Reset Pasword </a>
+             <span> <p>Thanks,</p>
+              <p>MangoIT Solutions</p></span>`,
+              // files: [filepath],
+             
+            }); 
+            console.log('full',full)   
+          } catch (error) {
+            res.json(error);
+          }
+        
+       
         res.status(201).json(user);
       }
     }
@@ -224,6 +260,8 @@ exports.registration = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   const { email, password, identifier } = req.body;
+
+  console.log(req.body)
 
   if (email && identifier === "userautologinwithemail") {
     const user = await User.findOne({
@@ -357,14 +395,14 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.sendGmail = async (req, res) => {
-  const { to, cc, subject } = req.body;
+  const { to, emailType } = req.body;
 
   const findUser = await User.findOne({
     where: { email: to, is_deleted: false },
   });
 
   const findEmailSendingData = await EmailManage.findOne({
-    where: { emailtype: "forgot_password" },
+    where: { emailtype: emailType},
   });
 
   let result = findEmailSendingData.dataValues.emailbodytext.replace(
@@ -374,25 +412,21 @@ exports.sendGmail = async (req, res) => {
     }`
   );
 
-  console.log(findEmailSendingData.dataValues, "33333", result, findUser);
   if (!findUser) {
     return res.status(400).json("this email is not register with us!");
   }
 
   if (findUser) {
     const send = require("gmail-send")({
-      user: process.env.EMAIL,
+      user: findEmailSendingData.emailfrom,
       pass: process.env.EMAIL_PASS,
       to,
-      cc,
-      subject,
-      // replyTo: "devendramangoit@gmail.com",
+      subject:findEmailSendingData.emailsubject,
     });
 
     // const filepath = req.file.path;
 
     try {
-      // console.log(findUser,"44444444444444444444")
       const { full } = await send({
         html: `${result}`,
         // files: [filepath],
