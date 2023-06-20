@@ -36,7 +36,7 @@ router.put(
   updateUser
 );
 router.delete("/deleteuser/:id", webProtection, deleteUser);
-router.post("/resetpassword", webProtection, resetPassword);
+
 router.post(
   "/sendgmail",
   webProtection,
