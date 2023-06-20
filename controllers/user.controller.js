@@ -124,21 +124,6 @@ exports.registration = async (req, res) => {
   const checkToken = req.headers.logintoken;
   if (email && identifier === "admin_logged_in") {
     const checkToken = req.headers.logintoken;
-    // console.log('logged in')
-    // const token = req.headers.logintoken;
-    // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
-    // const login_user = decode.id;
-    // console.log(login_user)
-    // const findLoginUser = await User.findOne({
-    //   where: { id: login_user, is_deleted: false },
-    // });
-
-    // if (findLoginUser.role_id == 1) 
-    // {
-    // admin reg for learner
-    // if (!email) {
-    //   res.status(400).json("Email is Required!");
-    // }
 
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
@@ -161,35 +146,25 @@ exports.registration = async (req, res) => {
       const findEmailSendingData = await EmailManage.findOne({
         where: { emailtype: 'user_registration' },
       });
-      
+
       let contentData = findEmailSendingData.dataValues.emailbodytext
-      .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
-      .replace("{{email}}", email)
-      .replace("{{password}}",genPass.pass);
-    
+        .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
+        .replace("{{email}}", email)
+        .replace("{{password}}", genPass.pass);
+
 
       const send = require("gmail-send")({
         user: findEmailSendingData.emailfrom,
         pass: process.env.EMAIL_PASS,
         to: email,
         subject: findEmailSendingData.emailsubject,
-        // replyTo: "devendramangoit@gmail.com",
       });
       // const filepath = req.file.path;
       try {
         const { result, full } = await send({
           html: `${contentData}`,
-            //   <p>Your account has been created successfully!</p>
-            //   <br>
-            //   <br>
-            //   Your login pasword is ${genPass.pass}
-            //   All free courses are available to you or you will be able to enroll in all paid courses after subscribing 
-            //   <a href="https://mangoit-lms.mangoitsol.com/login/" style="color:#22489e"> Login </a>
-            //  <span> 	<p>Thanks & Regards,</p>
-            //  <p style="color:#E8661B">MangoIT Solutions</p>
-            //  <p> Email : mangoitsols@gmail.com</span>`,
           // files: [filepath]
-        }); 
+        });
       } catch (error) {
         res.json(error);
       }
@@ -198,7 +173,6 @@ exports.registration = async (req, res) => {
     // }
   }
   else {
-    // console.log('not logged in')
     const findUser = await User.findOne({
       where: { email: email, is_deleted: false },
     });
@@ -260,13 +234,13 @@ exports.registration = async (req, res) => {
         const findEmailSendingData = await EmailManage.findOne({
           where: { emailtype: 'user_registration' },
         });
-        
-        let contentData = findEmailSendingData.dataValues.emailbodytext
-        .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
-        .replace("{{email}}", email)
-        .replace("{{password}}",password);
 
-        sendEmails(findEmailSendingData.emailfrom, email, findEmailSendingData.emailsubject,contentData)
+        let contentData = findEmailSendingData.dataValues.emailbodytext
+          .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
+          .replace("{{email}}", email)
+          .replace("{{password}}", password);
+
+        sendEmails(findEmailSendingData.emailfrom, email, findEmailSendingData.emailsubject, contentData)
         return res.status(201).json(user);
       }
     }
@@ -391,7 +365,7 @@ exports.resetPassword = async (req, res) => {
 
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
     const user_id = decode.id;
-    console.log(user_id);
+    // console.log(user_id);
     const findUser = await User.findOne({
       where: { id: user_id, is_deleted: false },
     });
@@ -411,12 +385,58 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+exports.forgotPassword = async (req, res) => {
+  const { to, emailType } = req.body;
+  const findUser = await User.findOne({
+    where: { email: to, is_deleted: false },
+  });
+
+  if (!findUser) {
+    return res.status(400).json("this email is not register with us!");
+  }
+
+  const findEmailSendingData = await EmailManage.findOne({
+    where: { emailtype: emailType },
+  });
+
+  if (findUser) {
+    const send = require("gmail-send")({
+      user: findEmailSendingData.emailfrom,
+      pass: process.env.EMAIL_PASS,
+      to,
+      subject: findEmailSendingData.emailsubject,
+    });
+    try {
+      const genToken = await generateToken({
+        id: findUser.id,
+        email: findUser.email,
+      });
+
+      let result = findEmailSendingData.dataValues.emailbodytext
+          .replace("{{username}}", `${capitalizeFirstLetter(findUser?.first_name)} ${findUser?.last_name}`)
+          .replace("{{forgotPasswordToken}}", genToken)
+
+      const { full } = await send({
+        html: `${result}`,
+        // files: [filepath],
+      });   
+      res.status(200).json(result);
+    } catch (error) {
+      res.json(error);
+    }
+  }
+}
+
 exports.sendGmail = async (req, res) => {
   const { to, emailType } = req.body;
 
   const findUser = await User.findOne({
     where: { email: to, is_deleted: false },
   });
+
+  if (!findUser) {
+    return res.status(400).json("this email is not register with us!");
+  }
 
   const findEmailSendingData = await EmailManage.findOne({
     where: { emailtype: emailType },
@@ -428,9 +448,7 @@ exports.sendGmail = async (req, res) => {
     }`
   );
 
-  if (!findUser) {
-    return res.status(400).json("this email is not register with us!");
-  }
+
 
   if (findUser) {
     const send = require("gmail-send")({
