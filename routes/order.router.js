@@ -7,6 +7,7 @@ const {
   deleteOrder,
   getOrderSubscriptionId,
   createOrderforRenewSubscriptio,
+  DownloadOrderInvoice,
 } = require("../controllers/order.controller");
 const { webProtection } = require("../helper/auth");
 const router = express.Router();
@@ -25,4 +26,6 @@ router.post(
   createOrderforRenewSubscriptio
 );
 
+//get order details for download order invoice pdf
+router.post("/downloadorderinvoice", DownloadOrderInvoice);
 module.exports = router;
