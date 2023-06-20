@@ -2,8 +2,16 @@ const db = require("../models/index.model");
 require("dotenv").config();
 const fs = require("fs");
 const jsonwebtoken = require("jsonwebtoken");
-const { GetTransactionsDetails } = require("../common/commonfunctions");
+const {
+  GetTransactionsDetails,
+  GetEmailTemplates,
+  ReplaceEmailTemplate,
+} = require("../common/commonfunctions");
 const { GenerateReceipt } = require("../helper/templates/receipttemplate");
+const sendEmails = require("../helper/sendMails");
+const {
+  GenerateUserReceiptPdf,
+} = require("../helper/templates/paymentreceipt");
 const Transaction = db.Transaction;
 
 exports.createTransaction = async (req, res) => {
@@ -34,6 +42,60 @@ exports.createTransaction = async (req, res) => {
       trx_amount: trx_amount,
     });
     res.status(201).json(transactionCreate);
+    if (transactionCreate) {
+      //generate payment receipt
+      const InvoiceTrxDet = await GetTransactionsDetails(
+        transactionCreate?.dataValues?.id
+      );
+      const trxdetls = {
+        transactionId: InvoiceTrxDet?.dataValues?.id,
+        OrderId: InvoiceTrxDet?.dataValues?.order_id,
+        userId: InvoiceTrxDet?.dataValues?.user_id,
+        transactionamount: InvoiceTrxDet?.dataValues?.trx_amount,
+        paymentmethod: InvoiceTrxDet?.dataValues?.payment_method,
+        transactiodate: InvoiceTrxDet?.dataValues?.createdAt,
+        subscriptionname: InvoiceTrxDet?.order?.subscription?.name,
+        subscriptionduration: InvoiceTrxDet?.order?.subscription?.duration_term,
+        subscriptiondurationvalue:
+          InvoiceTrxDet?.order?.subscription?.duration_value,
+        subscriptionstartdate: InvoiceTrxDet?.order?.subscription?.start_date,
+        orderdate: InvoiceTrxDet?.order?.createdAt,
+        username:
+          InvoiceTrxDet?.user?.first_name +
+          "" +
+          "" +
+          InvoiceTrxDet?.user?.last_name,
+      };
+      await GenerateUserReceiptPdf(trxdetls);
+      //send emails
+      const TransactionEmailTemp = await GetEmailTemplates(
+        (emailtype = "payment_receipt")
+      );
+      //get subscription det after creatting subscription
+      const TransactionDet = await GetTransactionsDetails(
+        transactionCreate?.dataValues?.id
+      );
+      var translations = {
+        username:
+          TransactionDet?.user?.first_name +
+          " " +
+          TransactionDet?.user?.last_name,
+        loginurl: `${process.env.FRONTEND_URL}`,
+        amount: TransactionDet?.dataValues?.trx_amount,
+      };
+      const translatedHtml = await ReplaceEmailTemplate(
+        translations,
+        TransactionEmailTemp?.dataValues?.emailbodytext
+      );
+      sendEmails(
+        TransactionEmailTemp?.dataValues?.emailfrom,
+        TransactionDet?.dataValues?.user?.email,
+        TransactionEmailTemp?.dataValues?.emailsubject,
+        translatedHtml,
+        (title = "Payment_Receipt")
+      );
+    }
+
     // }
 
     // if (findUser.role_id == 1) {

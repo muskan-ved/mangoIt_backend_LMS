@@ -1,5 +1,6 @@
 const db = require("../models/index.model");
-
+const EmailManage = db.EmailManage;
+const Subscription = db.Subscription;
 //function for get stripe key
 exports.getStripeKeys = async () => {
   var attributes = ["key", "value"];
@@ -78,4 +79,27 @@ exports.ReplaceEmailTemplate = (translations, emailBodyText) => {
   });
   var translatedHtml = chunksTranslated.join("");
   return translatedHtml;
+};
+
+//get email templates from db
+exports.GetEmailTemplates = async (emailtype) => {
+  const emailTemplatedata = await EmailManage.findOne({
+    where: { emailtype: emailtype },
+    attributes: ["emailbodytext", "emailsubject", "emailfrom"],
+  });
+  return emailTemplatedata;
+};
+
+//get subscription det by id
+exports.GetSubscriptionDet = async (subscriptionid, user_id) => {
+  const subscdet = await Subscription.findOne({
+    include: [
+      {
+        model: db.User,
+        //attributes: [],
+      },
+    ],
+    where: { id: subscriptionid, user_id: user_id },
+  });
+  return subscdet;
 };

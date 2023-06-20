@@ -5,7 +5,7 @@ const { formatePrice } = require("../../common/commonfunctions");
 let fontBold = "Helvetica-Bold";
 
 //generate  customer side receipt
-function GenerateReceipt(TransactionsDetails) {
+function GenerateUserReceiptPdf(TransactionsDetails) {
   let doc = new PDFDocument({
     size: "A4",
     margin: 50,
@@ -165,6 +165,7 @@ function GenerateReceipt(TransactionsDetails) {
     .fillColor("#444444");
 
   doc.end();
+  doc.pipe(fs.createWriteStream("./paymentReceipt.pdf"));
   doc.pipe(
     fs.createWriteStream(
       `./receiptspdf/${"customer-"}${TransactionsDetails?.transactionId}.pdf`
@@ -172,5 +173,5 @@ function GenerateReceipt(TransactionsDetails) {
   );
 }
 module.exports = {
-  GenerateReceipt,
+  GenerateUserReceiptPdf,
 };

@@ -1,11 +1,17 @@
 const db = require("../models/index.model");
 const fs = require("fs");
+const sendEmails = require("../helper/sendMails");
 require("dotenv").config();
 const jsonwebtoken = require("jsonwebtoken");
-const { GetOrderDetails } = require("../common/commonfunctions");
+const {
+  GetOrderDetails,
+  GetEmailTemplates,
+  ReplaceEmailTemplate,
+} = require("../common/commonfunctions");
 const {
   GenerateInvoicePdf,
 } = require("../helper/templates/orderinvoicetemplate");
+const { GenerateUserInvoicePdf } = require("../helper/templates/orderinvoice");
 const Order = db.Order;
 const User = db.User;
 const Subscription = db.Subscription;
@@ -98,11 +104,9 @@ exports.createOrder = async (req, res) => {
     transaction_id,
     order_type,
   } = req.body;
-
   // const token = req.headers.logintoken;
   // const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
   // const login_user = decode.id;
-
   try {
     // const findUser = await User.findOne({ where: { id: login_user } });
 
@@ -119,8 +123,54 @@ exports.createOrder = async (req, res) => {
       order_type: order_type,
       created_by: user_id,
     });
-    res.json(orderCreate);
-
+    res.status(201).json(orderCreate);
+    if (orderCreate) {
+      //generate order invoice
+      const getOrderDetails = await GetOrderDetails(
+        orderCreate?.dataValues?.id
+      );
+      const orderdet = {
+        orderId: getOrderDetails?.dataValues?.id,
+        userId: getOrderDetails?.dataValues?.user_id,
+        orderamount: getOrderDetails?.dataValues?.amount,
+        orderstatus: getOrderDetails?.dataValues?.status,
+        orderdate: getOrderDetails?.dataValues?.createdAt,
+        subscriptionname: getOrderDetails?.subscription?.dataValues?.name,
+        subscriptiondyrationterm:
+          getOrderDetails?.subscription?.dataValues?.duration_term,
+        subscriptiondyrationvalue:
+          getOrderDetails?.subscription?.dataValues?.duration_value,
+        username:
+          getOrderDetails?.user?.dataValues?.first_name +
+          getOrderDetails?.user?.dataValues?.last_name,
+      };
+      await GenerateUserInvoicePdf(orderdet);
+      //send emails
+      const OrderInvoiceEmailTemp = await GetEmailTemplates(
+        (emailtype = "order_invoice")
+      );
+      //get subscription det after creatting subscription
+      const OrderDet = await GetOrderDetails(orderCreate?.dataValues?.id);
+      var translations = {
+        username:
+          OrderDet?.user?.dataValues?.first_name +
+          " " +
+          OrderDet?.user?.dataValues?.last_name,
+        loginurl: `${process.env.FRONTEND_URL}user/subscription/view/${orderCreate?.dataValues?.id}`,
+        amount: OrderDet?.dataValues?.amount,
+      };
+      const translatedHtml = await ReplaceEmailTemplate(
+        translations,
+        OrderInvoiceEmailTemp?.dataValues?.emailbodytext
+      );
+      sendEmails(
+        OrderInvoiceEmailTemp?.dataValues?.emailfrom,
+        OrderDet?.dataValues?.user?.email,
+        OrderInvoiceEmailTemp?.dataValues?.emailsubject,
+        translatedHtml,
+        (title = "Order_Invoice")
+      );
+    }
     // }
 
     // if (findUser.role_id == 1) {
