@@ -365,13 +365,14 @@ exports.resetPassword = async (req, res) => {
 
     const decode = jsonwebtoken.verify(token, process.env.SIGNING_KEY);
     const user_id = decode.id;
-    // console.log(user_id);
+    
     const findUser = await User.findOne({
       where: { id: user_id, is_deleted: false },
     });
 
     if (!findUser) {
-      return res.status(400).json("User not Found!");
+      console.log("user not Found!");
+      return res.status(400).json("user not Found!");
     }
 
     if (findUser) {
