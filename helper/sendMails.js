@@ -5,9 +5,7 @@ const sendEmails = async( emailFrom, emailTo, emailSub, contentData) => {
     pass: process.env.EMAIL_PASS,
     to: emailTo,
     subject: emailSub,
-    // replyTo: "devendramangoit@gmail.com",
   });
-  // const filepath = req.file.path;
   try {
     const { result, full } = await send({
       html: `${contentData}`,

@@ -10,6 +10,7 @@ const {
   resetPassword,
   sendGmail,
   getUserByEmail,
+  forgotPassword,
 } = require("../controllers/user.controller");
 const { webProtection } = require("../helper/auth");
 const router = express.Router();
@@ -22,6 +23,7 @@ router.put('/updateuser/:id', webProtection , upload.single("profile_pic") , upd
 router.delete('/deleteuser/:id',webProtection, deleteUser)
 router.post('/resetpassword', webProtection, resetPassword)
 router.post('/sendgmail', webProtection, upload.single("attachment"), sendGmail)
+router.post('/forgotpassword', webProtection, upload.single("attachment"), forgotPassword)
 router.get("/getusers/:search?", webProtection, getUsers);
 router.get("/getuser/:id", webProtection, getUserById);
 router.post("/getuserbyemail", getUserByEmail);
