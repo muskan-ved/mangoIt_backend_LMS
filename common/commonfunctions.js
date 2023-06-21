@@ -103,3 +103,5 @@ exports.GetSubscriptionDet = async (subscriptionid, user_id) => {
   });
   return subscdet;
 };
+
+
