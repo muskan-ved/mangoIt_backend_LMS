@@ -7,6 +7,7 @@ const User = db.User;
 const Module = db.Module;
 const Session = db.Session;
 const Course = db.Course;
+const Subscription = db.Subscription;
 var Op = Sequelize.Op;
 const { QueryTypes } = require("sequelize");
 
@@ -345,7 +346,6 @@ exports.getEnrollPercent = async (req, res) => {
       courseIdCounts: courseIdCounts,
     };
 
-    console.log("Course ID Counts:", response);
     res.status(201).json(response);
   } catch (e) {
     res.status(400).json(e);
@@ -481,7 +481,7 @@ exports.updateEnrollMark = async (req, res) => {
       }
     }
   } catch (e) {
-    res.status(400).json(e);
+    res.status(201).json("Already View");
   }
 };
 
@@ -498,6 +498,13 @@ exports.getEnrolledCourseByUser = async (req, res) => {
         },
       ],
     });
+
+    const subsById = await Subscription.findOne({
+      where: { user_id: user_id },
+      limit: 1,
+      order: [["createdAt", "DESC"]],
+    });
+
     const moduleCounts = await Module.findAll({
       where: { is_deleted: false },
       attributes: [
@@ -572,8 +579,10 @@ exports.getEnrolledCourseByUser = async (req, res) => {
         moduleCount: moduleCount,
       };
     });
-    if (combinedArray) {
-      res.status(200).json(combinedArray);
+    if (combinedArray || subsById) {
+      res
+        .status(200)
+        .json({ subscription: subsById, enroll_course: combinedArray });
     }
     if (!combinedArray) {
       res.status(404).json("User Id not Found!");
@@ -581,130 +590,4 @@ exports.getEnrolledCourseByUser = async (req, res) => {
   } catch (e) {
     res.status(400).json(e);
   }
-
-  // try {
-  //   const getEnrollData = await Enrollcourse.findAll({
-  //     where: { user_id: user_id, is_deleted: false },
-  //     include: [
-  //       {
-  //         model: Course,
-  //       },
-  //     ],
-  //   });
-
-  //   const moduleCounts = await Module.findAll({
-  //     where: { is_deleted: false },
-  //     attributes: [
-  //       "course_id",
-  //       [Sequelize.fn("COUNT", Sequelize.col("course_id")), "moduleCount"],
-  //     ],
-  //     group: ["course_id"],
-  //   });
-  //   const moduleCountsMap = new Map();
-  //   moduleCounts.forEach((count) => {
-  //     moduleCountsMap.set(count.course_id, count.moduleCount);
-  //   });
-
-  //   const sessionCounts = await Session.findAll({
-  //     where: { is_deleted: false },
-  //     attributes: [
-  //       "course_id",
-  //       [Sequelize.fn("COUNT", Sequelize.col("course_id")), "sessionCount"],
-  //     ],
-  //     group: ["course_id"],
-  //   });
-  //   const sessionCountsMap = new Map();
-  //   sessionCounts.forEach((count) => {
-  //     sessionCountsMap.set(count.course_id, count.sessionCount);
-  //   });
-  //   ////////////////////////////////////////////////
-  //   const enrollCourse = await Enrollcourse.findAll({
-  //     where: { user_id: user_id },
-  //   });
-
-  //   let getEnrollData1;
-  //   var getEnroll;
-  //   const courseIdCounts = {};
-  //   for (let i = 0; i < enrollCourse.length; i++) {
-  //     getEnrollData1 = enrollCourse[i].view_history;
-  //     getEnroll = enrollCourse[i].view_history;
-  //     // if (getEnrollData1 !== null) {
-  //     //   getEnrollData1.map((ea) => {
-  //     //     Object.assign(ea, { courseId: enrollCourse[i].course_id });
-  //     //   });
-
-  //     // getEnrollData1.forEach((obj) => {
-  //     //   const courseId = obj["courseId"];
-  //     //   if (!courseIdCounts[courseId]) {
-  //     //     courseIdCounts[courseId] = 0;
-  //     //   }
-  //     //   for (const key in obj) {
-  //     //     if (key !== "courseId") {
-  //     //       courseIdCounts[courseId] += obj[key].length;
-  //     //     }
-  //     //   }
-  //     // });
-  //     // } else {
-  //     //   console.log("empty");
-  //     // }
-  //   }
-  //   var valueCount = 0;
-  //   let element1;
-
-  //   /////////////////////////////////////////////////
-  //   const combinedArray = getEnrollData.map((course) => {
-  //     const sessionCount = sessionCounts.filter((count) =>
-  //       count.course_id !== course.course_id
-  //         ? count.sessionCount
-  //         : { sessionCount: 0 }
-  //     );
-  //     const moduleCount = moduleCounts.filter((count) =>
-  //       count.course_id !== course.course_id
-  //         ? count.moduleCount
-  //         : { moduleCount: 0 }
-  //     );
-
-  //     for (let i = 0; i < sessionCount.length; i++) {
-  //       const element = sessionCount[i].dataValues.sessionCount;
-  //       console.log("@@@@@@@@@@@@@@", element);
-
-  //       // if (course.id === 1) {
-  //       //   console.log(
-  //       //     element,
-  //       //     "coursecourse",
-  //       //     course.view_history,
-  //       //     "coooooid",
-  //       //     course.id
-  //       //   );
-  //       //   return {
-  //       //     course: course,
-  //       //     courseIdCounts: courseIdCounts,
-  //       //     sessionCount: sessionCount,
-  //       //     moduleCount: moduleCount,
-  //       //   };
-  //       // }
-  //     }
-  //     for (let j = 0; j < enrollCourse.length; j++) {
-  //       element1 = enrollCourse[j].view_history;
-  //       for (var i = 0; i < element1.length; i++) {
-  //         var dictionary = element1[i];
-  //         var values = Object.values(dictionary);
-  //         for (var k = 0; k < values.length; k++) {
-  //           valueCount += values[k].length;
-  //         }
-  //       }
-  //       console.log("valueCountvalueCount", valueCount);
-  //       valueCount = 0;
-  //     }
-  //   });
-
-  //   if (combinedArray) {
-  //     res.status(200).json(combinedArray);
-  //   }
-  //   if (!combinedArray) {
-  //     res.status(404).json("User Id not Found!");
-  //   }
-  // } catch (e) {
-  //   res.status(400).json(e);
-  // }
 };
