@@ -149,7 +149,7 @@ exports.createOrder = async (req, res) => {
       const OrderInvoiceEmailTemp = await GetEmailTemplates(
         (emailtype = "order_invoice")
       );
-      //get subscription det after creatting subscription
+      //get Order det after creatting subscription
       const OrderDet = await GetOrderDetails(orderCreate?.dataValues?.id);
       var translations = {
         username:
