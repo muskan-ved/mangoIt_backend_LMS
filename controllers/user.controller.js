@@ -11,8 +11,12 @@ const db = require("../models/index.model");
 const { capitalizeFirstLetter } = require("../helper/help");
 const { generateHashPass } = require("../helper/generatePassword");
 const sendEmails = require("../helper/sendMails");
+
 const User = db.User;
 const EmailManage = db.EmailManage;
+const Site = db.Site;
+const fs = require('fs');
+
 
 exports.getUsers = async (req, res) => {
   const sequelize = require("sequelize");
@@ -147,10 +151,15 @@ exports.registration = async (req, res) => {
         where: { emailtype: 'user_registration' },
       });
 
+      const findOrgLogo = await Site.findOne({
+        where: { key: 'org_logo' },
+      });
+
       let contentData = findEmailSendingData.dataValues.emailbodytext
         .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
         .replace("{{email}}", email)
-        .replace("{{password}}", genPass.pass);
+        .replace("{{password}}", genPass.pass)
+        .replace("{{org_logo}}", findOrgLogo.dataValues.value);
 
 
       const send = require("gmail-send")({
@@ -235,11 +244,15 @@ exports.registration = async (req, res) => {
           where: { emailtype: 'user_registration' },
         });
 
+        const findOrgLogo = await Site.findOne({
+          where: { key: 'org_logo' },
+        });
         let contentData = findEmailSendingData.dataValues.emailbodytext
           .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
           .replace("{{email}}", email)
-          .replace("{{password}}", password);
-
+          .replace("{{password}}", password)
+          .replace("{{org_logo}}", findOrgLogo.dataValues.value);
+console.log('contentData',contentData)
         sendEmails(findEmailSendingData.emailfrom, email, findEmailSendingData.emailsubject, contentData)
         return res.status(201).json(user);
       }
@@ -393,7 +406,7 @@ exports.forgotPassword = async (req, res) => {
   });
 
   if (!findUser) {
-    return res.status(400).json("this email is not register with us!");
+    return res.status(400).json("Email not found!");
   }
 
   const findEmailSendingData = await EmailManage.findOne({
@@ -413,9 +426,22 @@ exports.forgotPassword = async (req, res) => {
         email: findUser.email,
       });
 
+      const findOrgLogo = await Site.findOne({
+        where: { key: 'org_logo' },
+      });
+      // console.log('findOrgLogo.dataValues.value',findOrgLogo.dataValues.value)
+      // Read the image file
+// const imageData = fs.readFileSync(findOrgLogo.dataValues.value);
+// const imageBase64 = Buffer.from(imageData).toString('base64');
+
+// // Create the inline image URL
+// const inlineImageUrl = `data:image/svg+xml;base64,${imageBase64}`;
+
+
       let result = findEmailSendingData.dataValues.emailbodytext
           .replace("{{username}}", `${capitalizeFirstLetter(findUser?.first_name)} ${findUser?.last_name}`)
           .replace("{{forgotPasswordToken}}", genToken)
+          .replace("{{org_logo}}", findOrgLogo.dataValues.value);
 
       const { full } = await send({
         html: `${result}`,
