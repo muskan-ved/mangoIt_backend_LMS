@@ -579,19 +579,15 @@ exports.getEnrolledCourseByUser = async (req, res) => {
         moduleCount: moduleCount,
       };
     });
-    console.log("subsByIdsubsById", subsById);
     if (combinedArray || subsById) {
-      console.log("!%%%%%%%%%%%%");
       res
         .status(200)
         .json({ subscription: subsById, enroll_course: combinedArray });
     }
     if (!combinedArray) {
-      console.log("XXXXXXXXXXXXX");
       res.status(404).json("User Id not Found!");
     }
   } catch (e) {
-    console.log("@#############", e);
     res.status(400).json(e);
   }
 };

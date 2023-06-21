@@ -80,9 +80,9 @@ exports.updateSubscription = async (req, res) => {
     price,
     description,
     name,
+    expiry_date,
   } = req.body;
   const subscription_id = req.params.id;
-
   const updateSubscription = await Subscription.update(
     {
       name: name,
@@ -93,6 +93,7 @@ exports.updateSubscription = async (req, res) => {
       duration_value: duration_value,
       start_date: start_date || startDate,
       status: status,
+      expiry_date: expiry_date,
     },
     { where: { id: subscription_id } }
   );
