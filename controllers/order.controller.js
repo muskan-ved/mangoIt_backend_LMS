@@ -20,15 +20,9 @@ exports.getOrdres = async (req, res) => {
   const Sequelize = require("sequelize");
   const searchQuery = req.params.searchQuery;
   let orders;
-  // try {
-  //   const orders = await Order.findAll({ include: [Subscription,User],where: { is_deleted: false } });
-  //   res.status(200).json(orders);
-  // } catch (e) {
-  //   res.status(400).json(e);
-  // }
+
   try {
     if (searchQuery) {
-      console.log("iffffffffffffffffff");
       orders = await Order.findAll({
         include: [
           {
@@ -51,8 +45,6 @@ exports.getOrdres = async (req, res) => {
         },
       });
     } else if (req.body.status !== "all" && req.body.status) {
-      console.log("else       iffffffffffffffffff");
-
       orders = await Order.findAll({
         include: [Subscription, User],
         where: {
@@ -61,8 +53,6 @@ exports.getOrdres = async (req, res) => {
         },
       });
     } else {
-      console.log("elseeeeeeeeeeeeeeeeeeeeeee");
-
       orders = await Order.findAll({
         include: [Subscription, User],
         where: { is_deleted: false },
