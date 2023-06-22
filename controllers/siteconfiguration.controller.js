@@ -13,9 +13,6 @@ exports.getAllSiteConfig = async (req, res) => {
     if (search) {
       allSiteConfig = await Site.findAll({
         where: {
-          title: {
-            [Op.like]: `%${search}%`,
-          },
           is_deleted: false,
         },
       });
