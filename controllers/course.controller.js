@@ -79,6 +79,7 @@ exports.getCourses = async (req, res) => {
           [Sequelize.fn("COUNT", Sequelize.col("course_id")), "moduleCount"],
         ],
         group: ["course_id"],
+        where: { is_deleted: false }
       });
       const moduleCountsMap = new Map();
       moduleCounts.forEach((count) => {
@@ -91,6 +92,7 @@ exports.getCourses = async (req, res) => {
           [Sequelize.fn("COUNT", Sequelize.col("course_id")), "sessionCount"],
         ],
         group: ["course_id"],
+        where: { is_deleted: false }
       });
       const sessionCountsMap = new Map();
       sessionCounts.forEach((count) => {
