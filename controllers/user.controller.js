@@ -161,6 +161,7 @@ exports.registration = async (req, res) => {
         .replace("{{password}}", genPass.pass)
         .replace("{{org_logo}}", findOrgLogo.dataValues.value);
 
+       
 
       const send = require("gmail-send")({
         user: findEmailSendingData.emailfrom,
@@ -249,10 +250,14 @@ exports.registration = async (req, res) => {
         });
         let contentData = findEmailSendingData.dataValues.emailbodytext
           .replace("{{username}}", `${capitalizeFirstLetter(user?.first_name)} ${user?.last_name}`)
-          .replace("{{email}}", email)
-          .replace("{{password}}", password)
+          // .replace("{{email}}", email)
+          // .replace("{{password}}", password)
+          .replace("Your login credentials are Email: {{email}} and  Password : {{password}}", '')
           .replace("{{org_logo}}", findOrgLogo.dataValues.value);
-console.log('contentData',contentData)
+    
+
+          console.log('data', contentData)
+          // return false;
         sendEmails(findEmailSendingData.emailfrom, email, findEmailSendingData.emailsubject, contentData)
         return res.status(201).json(user);
       }
@@ -429,20 +434,14 @@ exports.forgotPassword = async (req, res) => {
       const findOrgLogo = await Site.findOne({
         where: { key: 'org_logo' },
       });
-      // console.log('findOrgLogo.dataValues.value',findOrgLogo.dataValues.value)
-      // Read the image file
-// const imageData = fs.readFileSync(findOrgLogo.dataValues.value);
-// const imageBase64 = Buffer.from(imageData).toString('base64');
-
-// // Create the inline image URL
-// const inlineImageUrl = `data:image/svg+xml;base64,${imageBase64}`;
-
 
       let result = findEmailSendingData.dataValues.emailbodytext
           .replace("{{username}}", `${capitalizeFirstLetter(findUser?.first_name)} ${findUser?.last_name}`)
           .replace("{{forgotPasswordToken}}", genToken)
           .replace("{{org_logo}}", findOrgLogo.dataValues.value);
+          
 
+          console.log('result: ', result);
       const { full } = await send({
         html: `${result}`,
         // files: [filepath],
