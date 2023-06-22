@@ -266,27 +266,31 @@ exports.deleteCourse = async (req, res) => {
       );
       const courseDeleted = await Course.findOne({ where: { id: courseId } });
 
-      const moduleDelete = await Module.update(
-        { is_deleted: true, deleted_by: deleted_by },
-        { where: { course_id: courseId } }
-      );
-      const findModuleDeleted = await Module.findOne({
-        where: { course_id: courseId },
-      });
+      // const findModuleDeleted = await Module.findOne({
+      //   where: { course_id: courseId },
+      // });
+      // if (findModuleDeleted) {
+        const moduleDelete = await Module.update(
+          { is_deleted: true, deleted_by: deleted_by },
+          { where: { course_id: courseId } }
+        );
+      // }
 
-      const moduleDeletedId = findModuleDeleted.id;
-      const sessionDeleted = await Session.update(
-        { is_deleted: true, deleted_by: deleted_by },
-        { where: { module_id: moduleDeletedId } }
-      );
-      const findSesssionDeleted = await Session.findOne({
-        where: { module_id: moduleDeletedId },
-      });
+      // const findSesssionDeleted = await Session.findOne({
+      //   where: { course_id: courseId },
+      // });
+      // if (findSesssionDeleted){
+        const sessionDeleted = await Session.update(
+          { is_deleted: true, deleted_by: deleted_by },
+          { where: { course_id: courseId } }
+        );
+      // }
+
 
       res.status(200).send({
         courseDeleted: courseDeleted,
-        moduleDelete: findModuleDeleted,
-        sessionDeleted: findSesssionDeleted,
+        moduleDelete: moduleDelete,
+        sessionDeleted: moduleDelete,
       });
     }
 
