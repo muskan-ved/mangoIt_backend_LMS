@@ -35,8 +35,8 @@ exports.getDashboard = async (req, res) => {
       totalCourses: course?.length,
       totalSubscriptionsPrice: totalSubscriptionsPrice,
       totalSubscriptions: subscriptions?.length,
-      todaysSubscriptionData: todaySubscriptionData?.slice(-5),
-      todaysUsersData: todayUserData?.slice(-5),
+      todaysSubscriptionData: todaySubscriptionData.reverse(),
+      todaysUsersData: todayUserData.reverse(),
     });
   } catch (e) {
     res.status(400).json({ message: e.message });
